@@ -1,0 +1,15 @@
+# Which ModelBackend implementation is active. Swapping this value (and,
+# once it's implemented, running against CUDA hardware) is the entire cost
+# of moving from Phase 1 (MLX, Apple Silicon) to the confirmed production
+# target (CUDA + QLoRA, Linux + NVIDIA/AMD GPU) — nothing else in the
+# control plane, specialization loop, or evaluation harness should need to
+# change. See docs/technical-build-plan-v5.md, "Model Backend Abstraction."
+backend: mlx
+
+model_version: "mlx-community/Qwen2.5-3B-Instruct-4bit"
+
+lora:
+  rank: 8
+  alpha: 16
+  epochs: 3
+  learning_rate: 1e-5

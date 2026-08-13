@@ -1,0 +1,39 @@
+[project]
+name = "slmguard"
+version = "0.1.0"
+description = "Constrained small-language-model specialization platform for BFSI recommendation workflows."
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.9",
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "jsonschema>=4.23",
+]
+
+[project.optional-dependencies]
+mlx = [
+    "mlx>=0.18",
+    "mlx-lm>=0.19",
+]
+cuda = [
+    "torch>=2.4",
+    "transformers>=4.46",
+    "peft>=0.13",
+    "bitsandbytes>=0.44",
+]
+dev = [
+    "pytest>=8.3",
+]
+
+[project.scripts]
+slmguard = "slmguard.cli:main"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

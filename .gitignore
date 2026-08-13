@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# local data / model artifacts — not source
+data/
+models/
+*.sqlite
+*.sqlite3
