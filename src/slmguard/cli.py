@@ -45,11 +45,13 @@ def main(ctx: click.Context, config_path: Path) -> None:
 def generate_data(ctx: click.Context) -> None:
     """Generate synthetic fraud-alert scenarios via the teacher model, gated
     by the quality rubric and rejection process. Not yet implemented — the
-    rubric itself is an "Immediate Next Step" in the build plan, not written
-    yet, so bulk generation intentionally has nothing to run against."""
+    rubric and its automated checks now exist (docs/synthetic-data-quality-
+    rubric-v1.md, slmguard.rubric.score_batch), but there is no teacher-model
+    generation pipeline for it to gate yet."""
     raise click.ClickException(
-        "generate-data: not implemented yet. Write the Synthetic Data Quality "
-        "Rubric first (see 'Immediate Next Steps' in technical-build-plan-v5.md)."
+        "generate-data: not implemented yet. The Synthetic Data Quality Rubric "
+        "exists (docs/synthetic-data-quality-rubric-v1.md); still need the "
+        "teacher-model generation pipeline to score against it."
     )
 
 
