@@ -42,7 +42,12 @@ class MLXBackend(ModelBackend):
         from mlx_lm import generate
 
         mlx_model, tokenizer = model.handle
-        text = generate(mlx_model, tokenizer, prompt=prompt, verbose=False)
+        chat_prompt = tokenizer.apply_chat_template(
+            [{"role": "user", "content": prompt}],
+            add_generation_prompt=True,
+            tokenize=False,
+        )
+        text = generate(mlx_model, tokenizer, prompt=chat_prompt, max_tokens=512, verbose=False)
         return RawModelOutput(text=text, schema_valid=True)
 
     def fine_tune(self, model: LoadedModel, dataset: Path, config: LoRAConfig) -> AdapterArtifact:

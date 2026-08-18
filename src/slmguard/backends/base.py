@@ -55,6 +55,38 @@ class ModelBackend(ABC):
         """Fuse a trained adapter into the base model, producing a new deployable version."""
 
 
+def _extract_json_object(text: str) -> str | None:
+    """Return the first balanced top-level {...} substring in text, or None.
+    Models routinely wrap valid JSON in leading/trailing chatter or run on
+    past it after the intended answer; this isolates just the object so
+    validation isn't defeated by tokens the schema was never meant to cover."""
+    start = text.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(text)):
+        char = text[i]
+        if in_string:
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : i + 1]
+    return None
+
+
 def validate_output(raw: RawModelOutput) -> Recommendation | None:
     """Shared helper: parse a backend's raw output into the schema, or return
     None on failure. Backend-agnostic on purpose — every backend's output goes
@@ -62,7 +94,10 @@ def validate_output(raw: RawModelOutput) -> Recommendation | None:
     contract (schema failure -> hard escalation, never a silent retry)."""
     if not raw.schema_valid:
         return None
+    candidate = _extract_json_object(raw.text)
+    if candidate is None:
+        return None
     try:
-        return Recommendation.model_validate_json(raw.text)
+        return Recommendation.model_validate_json(candidate)
     except Exception:
         return None
