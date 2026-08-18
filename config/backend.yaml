@@ -13,3 +13,14 @@ lora:
   alpha: 16
   epochs: 3
   learning_rate: 1e-5
+
+# Which AuditStore implementation is active. SQLite is the Phase 1 /
+# local-development backend (append-only, hash-chained, but not itself
+# production-grade — no replication/access control/retention). PostgreSQL is
+# the confirmed production backend — see
+# src/slmguard/audit/postgres_store.py for the parity checklist. Swapping
+# `backend: sqlite` for `backend: postgres` (and `location` for a DSN) is
+# meant to be the entire cost of retargeting the audit trail to production.
+audit_store:
+  backend: sqlite
+  location: "data/audit.db"

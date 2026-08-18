@@ -10,10 +10,14 @@ the entire cost of retargeting these commands to the production backend.
 
 from __future__ import annotations
 
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 import click
 
+from slmguard.audit import get_audit_store
+from slmguard.audit.types import TraceRecord
 from slmguard.backends import get_backend
 from slmguard.backends.base import validate_output
 from slmguard.config import load_settings
@@ -63,6 +67,22 @@ def run_baseline(ctx: click.Context, prompt: str) -> None:
     model = backend.load_model(settings.model_version)
     raw = backend.generate(model, prompt)
     recommendation = validate_output(raw)
+
+    audit_store = get_audit_store(settings.audit_store.backend, settings.audit_store.location)
+    trace = TraceRecord(
+        trace_id=str(uuid.uuid4()),
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        alert_id=recommendation.alert_id if recommendation else "unknown",
+        prompt=prompt,
+        raw_output=raw.text,
+        schema_valid=recommendation is not None,
+        recommendation_json=recommendation.model_dump_json() if recommendation else None,
+        final_action=recommendation.action.value if recommendation else "escalate",
+        confidence=recommendation.confidence if recommendation else None,
+        model_version=settings.model_version,
+        backend_name=backend.name,
+    )
+    audit_store.append(trace)
 
     if recommendation is None:
         click.echo(f"SCHEMA FAILURE (would auto-escalate). Raw output:\n{raw.text}", err=True)

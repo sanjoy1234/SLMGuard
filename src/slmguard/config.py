@@ -13,10 +13,16 @@ class LoRASettings(BaseModel):
     learning_rate: float
 
 
+class AuditStoreSettings(BaseModel):
+    backend: str
+    location: str
+
+
 class Settings(BaseModel):
     backend: str
     model_version: str
     lora: LoRASettings
+    audit_store: AuditStoreSettings
 
 
 def load_settings(path: Path) -> Settings:
