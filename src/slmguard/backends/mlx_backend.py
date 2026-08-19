@@ -80,12 +80,14 @@ class MLXBackend(ModelBackend):
             str(config.batch_size),
             "--max-seq-length",
             str(config.max_seq_length),
+            "--val-batches",
+            "-1",
         ]
         if config.grad_checkpoint:
             cmd.append("--grad-checkpoint")
         subprocess.run(cmd, check=True)
 
-        training_data_hash = _hash_file(dataset)
+        training_data_hash = _hash_dataset_dir(dataset)
         return AdapterArtifact(
             path=adapter_dir,
             base_version_id=model.version_id,
@@ -118,11 +120,16 @@ class MLXBackend(ModelBackend):
         )
 
 
-def _hash_file(path: Path) -> str:
+def _hash_dataset_dir(path: Path) -> str:
+    """Hash every file in a dataset directory (mlx_lm.lora's --data expects a
+    directory of {train,valid,test}.jsonl, not a single file), sorted by name
+    for a deterministic result regardless of filesystem iteration order."""
     import hashlib
 
     digest = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            digest.update(chunk)
+    for file_path in sorted(p for p in path.iterdir() if p.is_file()):
+        digest.update(file_path.name.encode("utf-8"))
+        with file_path.open("rb") as f:
+            for chunk in iter(lambda: f.read(65536), b""):
+                digest.update(chunk)
     return digest.hexdigest()

@@ -32,7 +32,7 @@ REQUIRED_DIVERSITY_CATEGORIES = (
     "policy_boundary",
 )
 
-_PII_PATTERNS = {
+PII_PATTERNS = {
     "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),
     "unmasked_card_number": re.compile(r"\b(?:\d[ -]?){13,19}\b"),
     "email": re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),
@@ -86,7 +86,7 @@ def score_example(example: SyntheticExample) -> RubricResult:
     if recommendation.rationale.strip() == example.scenario.strip():
         violations.append("rationale_copies_scenario")
 
-    for pii_kind, pattern in _PII_PATTERNS.items():
+    for pii_kind, pattern in PII_PATTERNS.items():
         if pattern.search(example.scenario) or pattern.search(recommendation.rationale):
             violations.append(f"possible_pii_leak:{pii_kind}")
 

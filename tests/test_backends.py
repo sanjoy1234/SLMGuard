@@ -64,8 +64,9 @@ def test_mlx_fine_tune_passes_batch_size_max_seq_length_and_grad_checkpoint(monk
 
     monkeypatch.setattr("slmguard.backends.mlx_backend.subprocess.run", fake_run)
 
-    dataset = tmp_path / "train.jsonl"
-    dataset.write_text('{"messages": []}\n')
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    (dataset / "train.jsonl").write_text('{"messages": []}\n')
     model = LoadedModel(version_id="some-model", backend_name="mlx", handle=(None, None))
     config = LoRAConfig(
         rank=8,
@@ -82,6 +83,7 @@ def test_mlx_fine_tune_passes_batch_size_max_seq_length_and_grad_checkpoint(monk
     cmd = captured_cmd["cmd"]
     assert cmd[cmd.index("--batch-size") + 1] == "2"
     assert cmd[cmd.index("--max-seq-length") + 1] == "512"
+    assert cmd[cmd.index("--val-batches") + 1] == "-1"
     assert "--grad-checkpoint" in cmd
     assert artifact.base_version_id == "some-model"
 
@@ -94,8 +96,9 @@ def test_mlx_fine_tune_omits_grad_checkpoint_flag_when_disabled(monkeypatch, tmp
 
     monkeypatch.setattr("slmguard.backends.mlx_backend.subprocess.run", fake_run)
 
-    dataset = tmp_path / "train.jsonl"
-    dataset.write_text('{"messages": []}\n')
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    (dataset / "train.jsonl").write_text('{"messages": []}\n')
     model = LoadedModel(version_id="some-model", backend_name="mlx", handle=(None, None))
     config = LoRAConfig(
         rank=8,

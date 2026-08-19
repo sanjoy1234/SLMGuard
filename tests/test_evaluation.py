@@ -113,7 +113,7 @@ def test_confidence_correctness_correlation_is_zero_when_degenerate():
 
 
 def test_validate_held_out_set_rejects_wrong_size():
-    cases = [LabeledCase(f"a{i}", Action.APPROVE) for i in range(5)]
+    cases = [LabeledCase(f"a{i}", Action.APPROVE, "scenario") for i in range(5)]
     result = validate_held_out_set(cases)
     assert result.valid is False
     assert any(v.startswith("size_out_of_range") for v in result.violations)
@@ -122,15 +122,21 @@ def test_validate_held_out_set_rejects_wrong_size():
 def _stratified_cases(n=150, with_policy_boundary=True):
     actions = list(Action)
     cases = [
-        LabeledCase(f"a{i}", actions[i % len(actions)], policy_boundary=False) for i in range(n)
+        LabeledCase(f"a{i}", actions[i % len(actions)], "scenario", policy_boundary=False)
+        for i in range(n)
     ]
     if with_policy_boundary:
-        cases[0] = LabeledCase(cases[0].alert_id, cases[0].true_action, policy_boundary=True)
+        cases[0] = LabeledCase(
+            cases[0].alert_id, cases[0].true_action, cases[0].prompt, policy_boundary=True
+        )
     return cases
 
 
 def test_validate_held_out_set_rejects_missing_action_class():
-    cases = [LabeledCase(f"a{i}", Action.APPROVE, policy_boundary=(i == 0)) for i in range(150)]
+    cases = [
+        LabeledCase(f"a{i}", Action.APPROVE, "scenario", policy_boundary=(i == 0))
+        for i in range(150)
+    ]
     result = validate_held_out_set(cases)
     assert result.valid is False
     assert any(v.startswith("missing_action_classes") for v in result.violations)
@@ -152,15 +158,19 @@ def test_validate_held_out_set_accepts_a_well_formed_set():
 
 def test_grow_challenge_set_appends_and_versions():
     current = ChallengeSet(version="v1", cases=())
-    grown = grow_challenge_set(current, [LabeledCase("a1", Action.DECLINE)])
+    grown = grow_challenge_set(current, [LabeledCase("a1", Action.DECLINE, "scenario")])
     assert grown.version == "v2"
     assert [c.alert_id for c in grown.cases] == ["a1"]
 
 
 def test_grow_challenge_set_never_drops_or_duplicates_existing_cases():
-    current = ChallengeSet(version="v2", cases=(LabeledCase("a1", Action.DECLINE),))
+    current = ChallengeSet(version="v2", cases=(LabeledCase("a1", Action.DECLINE, "scenario"),))
     grown = grow_challenge_set(
-        current, [LabeledCase("a1", Action.DECLINE), LabeledCase("a2", Action.ESCALATE_L2)]
+        current,
+        [
+            LabeledCase("a1", Action.DECLINE, "scenario"),
+            LabeledCase("a2", Action.ESCALATE_L2, "scenario"),
+        ],
     )
     assert [c.alert_id for c in grown.cases] == ["a1", "a2"]
     assert grown.version == "v3"

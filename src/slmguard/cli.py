@@ -10,6 +10,7 @@ the entire cost of retargeting these commands to the production backend.
 
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -20,7 +21,11 @@ from slmguard.audit import get_audit_store
 from slmguard.audit.types import TraceRecord
 from slmguard.backends import get_backend
 from slmguard.backends.base import validate_output
+from slmguard.backends.types import LoRAConfig
 from slmguard.config import load_settings
+from slmguard.evaluation import ChallengeSet, HeldOutSet, LabeledCase, validate_held_out_set
+from slmguard.schema import Action
+from slmguard.specialization import DEFAULT_CONFIDENCE_THRESHOLD, run_cycle
 
 DEFAULT_CONFIG = Path("config/backend.yaml")
 
@@ -93,13 +98,124 @@ def run_baseline(ctx: click.Context, prompt: str) -> None:
     click.echo(recommendation.model_dump_json(indent=2))
 
 
+def _load_labeled_cases(path: Path) -> tuple[str, tuple[LabeledCase, ...]]:
+    data = json.loads(path.read_text())
+    cases = tuple(
+        LabeledCase(
+            alert_id=c["alert_id"],
+            true_action=Action(c["true_action"]),
+            prompt=c["prompt"],
+            policy_boundary=c.get("policy_boundary", False),
+        )
+        for c in data["cases"]
+    )
+    return data.get("version", "unversioned"), cases
+
+
 @main.command("specialize")
+@click.option(
+    "--held-out-set",
+    "held_out_set_path",
+    type=click.Path(path_type=Path, exists=True),
+    required=True,
+    help=(
+        "JSON file: {version, cases: [{alert_id, true_action, prompt, "
+        "policy_boundary}]}. Not the real frozen Phase 1 set unless it "
+        "actually meets slmguard.evaluation.validate_held_out_set."
+    ),
+)
+@click.option(
+    "--challenge-set",
+    "challenge_set_path",
+    type=click.Path(path_type=Path, exists=True),
+    required=True,
+    help="JSON file, same shape as --held-out-set.",
+)
+@click.option(
+    "--work-dir",
+    "work_dir",
+    type=click.Path(path_type=Path),
+    default=Path("data/specialization_cycles"),
+    show_default=True,
+    help="Directory this cycle's training dataset/adapter/fused model are written into.",
+)
+@click.option(
+    "--confidence-threshold",
+    "confidence_threshold",
+    type=float,
+    default=DEFAULT_CONFIDENCE_THRESHOLD,
+    show_default=True,
+    help="Traces with confidence below this are selected as low-confidence.",
+)
 @click.pass_context
-def specialize(ctx: click.Context) -> None:
-    """Run one specialization cycle: pull traces, filter, convert, fine-tune,
-    fuse. Depends on the audit store and trace-filtering logic, neither of
-    which exist yet — this is next after run-baseline is validated end-to-end."""
-    raise click.ClickException("specialize: not implemented yet — depends on the audit store.")
+def specialize(
+    ctx: click.Context,
+    held_out_set_path: Path,
+    challenge_set_path: Path,
+    work_dir: Path,
+    confidence_threshold: float,
+) -> None:
+    """Run one specialization cycle end to end: select useful traces from the
+    audit store, convert the rubric-passing ones into training examples,
+    fine-tune, fuse, evaluate against the held-out and challenge sets, and
+    emit an explicit promotion decision -- including "no promotion this
+    cycle" as a first-class outcome, not a failure."""
+    settings = ctx.obj["settings"]
+    backend = get_backend(settings.backend)
+    audit_store = get_audit_store(settings.audit_store.backend, settings.audit_store.location)
+
+    held_out_version, held_out_cases = _load_labeled_cases(held_out_set_path)
+    held_out_set = HeldOutSet(version=held_out_version, cases=held_out_cases)
+    challenge_version, challenge_cases = _load_labeled_cases(challenge_set_path)
+    challenge_set = ChallengeSet(version=challenge_version, cases=challenge_cases)
+
+    held_out_validation = validate_held_out_set(list(held_out_set.cases))
+    if not held_out_validation.valid:
+        click.echo(
+            "WARNING: held-out set does not meet the frozen Phase 1 set "
+            f"requirements ({', '.join(held_out_validation.violations)}) -- "
+            "proceeding anyway since no real Phase 1 held-out set exists yet. "
+            "Treat this cycle's promotion decision as a bootstrap/demo result, "
+            "not a production signal.",
+            err=True,
+        )
+
+    lora_config = LoRAConfig(
+        rank=settings.lora.rank,
+        alpha=settings.lora.alpha,
+        epochs=settings.lora.epochs,
+        learning_rate=settings.lora.learning_rate,
+        batch_size=settings.lora.batch_size,
+        max_seq_length=settings.lora.max_seq_length,
+        grad_checkpoint=settings.lora.grad_checkpoint,
+    )
+
+    cycle_id = uuid.uuid4().hex[:8]
+    result = run_cycle(
+        store=audit_store,
+        backend=backend,
+        base_model_version=settings.model_version,
+        held_out_set=held_out_set,
+        challenge_set=challenge_set,
+        lora_config=lora_config,
+        work_dir=work_dir / cycle_id,
+        confidence_threshold=confidence_threshold,
+    )
+
+    click.echo(
+        f"Pool: {len(result.pool.examples)} rubric-passing example(s) from "
+        f"{result.pool.traces_selected} selected trace(s) "
+        f"({result.pool.traces_scanned} scanned, "
+        f"{result.pool.traces_unconvertible} unconvertible)."
+    )
+    if result.baseline_summary is not None:
+        click.echo(f"Baseline accuracy: {result.baseline_summary.accuracy:.3f}")
+    if result.candidate_summary is not None:
+        click.echo(f"Candidate accuracy: {result.candidate_summary.accuracy:.3f}")
+    click.echo(f"Decision: {result.reason}")
+
+    if not result.promoted:
+        raise SystemExit(1)
 
 
 @main.command("evaluate")

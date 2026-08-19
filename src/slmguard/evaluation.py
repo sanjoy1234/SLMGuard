@@ -33,6 +33,7 @@ class LabeledCase:
 
     alert_id: str
     true_action: Action
+    prompt: str
     policy_boundary: bool = False
 
 
@@ -45,10 +46,11 @@ class EvaluatedCase:
     predicted_action: Action
     confidence: float
     policy_violated: bool
+    schema_valid: bool = True
 
     @property
     def correct(self) -> bool:
-        return self.predicted_action == self.true_action
+        return self.schema_valid and self.predicted_action == self.true_action
 
 
 @dataclass(frozen=True)
