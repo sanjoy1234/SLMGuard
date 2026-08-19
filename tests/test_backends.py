@@ -11,7 +11,7 @@ from slmguard.backends import ModelBackend, get_backend
 from slmguard.backends.base import validate_output
 from slmguard.backends.cuda_qlora_backend import CudaQLoRABackend
 from slmguard.backends.mlx_backend import MLXBackend
-from slmguard.backends.types import RawModelOutput
+from slmguard.backends.types import LoadedModel, LoRAConfig, RawModelOutput
 
 
 def test_both_backends_satisfy_the_interface():
@@ -54,3 +54,59 @@ def test_validate_output_parses_well_formed_recommendation():
     recommendation = validate_output(raw)
     assert recommendation is not None
     assert recommendation.action.value == "escalate_l2"
+
+
+def test_mlx_fine_tune_passes_batch_size_max_seq_length_and_grad_checkpoint(monkeypatch, tmp_path):
+    captured_cmd = {}
+
+    def fake_run(cmd, check):
+        captured_cmd["cmd"] = cmd
+
+    monkeypatch.setattr("slmguard.backends.mlx_backend.subprocess.run", fake_run)
+
+    dataset = tmp_path / "train.jsonl"
+    dataset.write_text('{"messages": []}\n')
+    model = LoadedModel(version_id="some-model", backend_name="mlx", handle=(None, None))
+    config = LoRAConfig(
+        rank=8,
+        alpha=16,
+        epochs=3,
+        learning_rate=1e-5,
+        batch_size=2,
+        max_seq_length=512,
+        grad_checkpoint=True,
+    )
+
+    artifact = MLXBackend().fine_tune(model, dataset, config)
+
+    cmd = captured_cmd["cmd"]
+    assert cmd[cmd.index("--batch-size") + 1] == "2"
+    assert cmd[cmd.index("--max-seq-length") + 1] == "512"
+    assert "--grad-checkpoint" in cmd
+    assert artifact.base_version_id == "some-model"
+
+
+def test_mlx_fine_tune_omits_grad_checkpoint_flag_when_disabled(monkeypatch, tmp_path):
+    captured_cmd = {}
+
+    def fake_run(cmd, check):
+        captured_cmd["cmd"] = cmd
+
+    monkeypatch.setattr("slmguard.backends.mlx_backend.subprocess.run", fake_run)
+
+    dataset = tmp_path / "train.jsonl"
+    dataset.write_text('{"messages": []}\n')
+    model = LoadedModel(version_id="some-model", backend_name="mlx", handle=(None, None))
+    config = LoRAConfig(
+        rank=8,
+        alpha=16,
+        epochs=3,
+        learning_rate=1e-5,
+        batch_size=1,
+        max_seq_length=512,
+        grad_checkpoint=False,
+    )
+
+    MLXBackend().fine_tune(model, dataset, config)
+
+    assert "--grad-checkpoint" not in captured_cmd["cmd"]

@@ -8,11 +8,19 @@ backend: mlx
 
 model_version: "mlx-community/Qwen2.5-3B-Instruct-4bit"
 
+# batch_size/max_seq_length/grad_checkpoint defaults are set per
+# docs/lora-memory-footprint-spike-v1.md: on this 8GB machine, batch_size 4
+# (mlx_lm's own default) caused both a 5.86GB peak footprint and a NaN loss
+# divergence by iteration 2. batch_size<=2 with grad_checkpoint on stayed in
+# the 3-5GB range and trained stably.
 lora:
   rank: 8
   alpha: 16
   epochs: 3
   learning_rate: 1e-5
+  batch_size: 2
+  max_seq_length: 512
+  grad_checkpoint: true
 
 # Which AuditStore implementation is active. SQLite is the Phase 1 /
 # local-development backend (append-only, hash-chained, but not itself

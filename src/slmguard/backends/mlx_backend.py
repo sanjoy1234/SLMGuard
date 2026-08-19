@@ -7,10 +7,15 @@ project's architecture. Nothing outside this file may import `mlx` or
 
 `fine_tune` / `fuse_adapters` shell out to the `mlx_lm.lora` / `mlx_lm.fuse`
 CLI entry points rather than a pinned internal Python API, since those are
-the stable, documented surface of mlx-lm across versions. LoRA memory
-footprint at 3B has not yet been validated on this hardware — see
-"Known Technical Risks" in docs/technical-build-plan-v5.md — so `config`
-values here are not yet tuned defaults, just the shape of the call.
+the stable, documented surface of mlx-lm across versions. `config.batch_size`
+and `config.grad_checkpoint` are validated defaults, not placeholders — see
+docs/lora-memory-footprint-spike-v1.md: batch_size 4 (mlx_lm's own CLI
+default) caused a NaN loss divergence and a 5.86GB peak footprint on this
+8GB machine, while batch_size<=2 with grad_checkpoint on trained stably at
+3-5GB. `config.rank`/`config.alpha` are not yet passed through here — mlx_lm
+has no direct CLI flag for them, only a `-c config.yaml` override — so this
+implementation currently rides mlx_lm's own rank=8 default, which happens
+to match `config/backend.yaml`'s configured rank but isn't yet enforced.
 """
 
 from __future__ import annotations
@@ -71,7 +76,13 @@ class MLXBackend(ModelBackend):
             str(config.epochs),
             "--learning-rate",
             str(config.learning_rate),
+            "--batch-size",
+            str(config.batch_size),
+            "--max-seq-length",
+            str(config.max_seq_length),
         ]
+        if config.grad_checkpoint:
+            cmd.append("--grad-checkpoint")
         subprocess.run(cmd, check=True)
 
         training_data_hash = _hash_file(dataset)

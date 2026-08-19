@@ -11,6 +11,9 @@ class LoRASettings(BaseModel):
     alpha: int
     epochs: int
     learning_rate: float
+    batch_size: int
+    max_seq_length: int
+    grad_checkpoint: bool
 
 
 class AuditStoreSettings(BaseModel):

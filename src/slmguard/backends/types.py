@@ -35,6 +35,9 @@ class LoRAConfig:
     alpha: int
     epochs: int
     learning_rate: float
+    batch_size: int
+    max_seq_length: int
+    grad_checkpoint: bool
     target_modules: tuple[str, ...] = ()
 
 
