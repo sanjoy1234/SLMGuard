@@ -12,7 +12,14 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class TraceRecord:
-    """One control-plane decision, complete enough to replay or audit later."""
+    """One control-plane decision, complete enough to replay or audit later.
+
+    `final_action` is the control plane's actual decision -- post-policy,
+    not the model's raw claim -- per the "models only recommend" mandate.
+    `policy_version`/`policy_overridden`/`policy_violated_rule_ids` are None/
+    False/"[]" only when there was no valid recommendation to apply policy
+    to (a schema failure); once schema-valid, policy always runs, so those
+    fields are never left implicit for a real recommendation."""
 
     trace_id: str
     timestamp: str
@@ -25,6 +32,9 @@ class TraceRecord:
     confidence: float | None
     model_version: str
     backend_name: str
+    policy_version: str | None
+    policy_overridden: bool
+    policy_violated_rule_ids: str
 
 
 @dataclass(frozen=True)

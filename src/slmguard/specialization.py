@@ -8,23 +8,27 @@ purpose: one working loop path, no extra platform features.
 Deliberate, documented simplifications versus the full plan (flagged here,
 not glossed over):
 
-- Trace selection covers "low-confidence" and "escalated" (schema-failure)
-  cases from the audit store. "Cases where the policy engine overrode the
-  model" is not selectable -- the policy engine doesn't exist yet.
+- Trace selection covers low-confidence, escalated (schema-failure), and
+  policy-overridden cases -- all three of the plan's step-2 criteria, now
+  that `slmguard.policy` exists and the audit lineage carries
+  `policy_overridden` per trace.
 - Conversion only succeeds for traces that already carry a valid
   ground-truth label (schema_valid). A schema-failure trace has no
   correct answer to imitate -- the plan's real answer for those is a
   larger model or human resolving the case and that resolution becoming
   the training example, which needs a teacher-model/human-review path
   that doesn't exist yet. Those traces are counted and surfaced
-  (`SpecializationPool.traces_unconvertible`), not silently dropped.
+  (`SpecializationPool.traces_unconvertible`), not silently dropped. A
+  policy-overridden trace *does* convert, but trains toward the control
+  plane's actual decision (`final_action`), never the model's own
+  rule-violating raw claim -- see `convert_trace`.
 - Privacy-safe conversion is mechanical PII-pattern redaction (reusing
   `slmguard.rubric.PII_PATTERNS`), not the LLM-based "careful rewriting"
   the plan names as the eventual Phase 1 approach. Same honesty standard
   as the plan's own admission that this step is "careful rewriting plus
   review... not yet a formal privacy guarantee."
-- `EvaluatedCase.policy_violated` is always False here -- there's no
-  policy engine yet to compute it for real.
+- `EvaluatedCase.policy_violated` is computed for real via
+  `slmguard.policy.apply_policy` now, no longer hardcoded False.
 - `run_cycle` takes `HeldOutSet`/`ChallengeSet` as trusted inputs and does
   not itself call `slmguard.evaluation.validate_held_out_set`. Freezing
   and validating a held-out set is a separate, one-time curation step
@@ -54,6 +58,7 @@ from slmguard.evaluation import (
     evaluate_promotion,
     summarize,
 )
+from slmguard.policy import apply_policy
 from slmguard.rubric import PII_PATTERNS, BatchScore, SyntheticExample, score_batch
 from slmguard.schema import Action
 
@@ -84,13 +89,14 @@ def select_traces(
     limit: int = 500,
 ) -> TraceSelection:
     """Pull recent traces and filter to the ones that matter, per the build
-    plan's Specialization Loop step 2: low-confidence cases and cases that
-    were escalated (schema failure)."""
+    plan's Specialization Loop step 2: low-confidence cases, cases that were
+    escalated (schema failure), and cases the policy engine overrode."""
     candidates = store.query(limit=limit)
     selected = tuple(
         c.trace
         for c in candidates
         if not c.trace.schema_valid
+        or c.trace.policy_overridden
         or (c.trace.confidence is not None and c.trace.confidence < confidence_threshold)
     )
     return TraceSelection(selected=selected, total_scanned=len(candidates))
@@ -98,12 +104,21 @@ def select_traces(
 
 def convert_trace(trace: TraceRecord) -> SyntheticExample | None:
     """Convert one trace into a candidate training example, or None if the
-    trace has no valid ground-truth label to convert (a schema failure)."""
+    trace has no valid ground-truth label to convert (a schema failure).
+
+    For a policy-overridden trace, the target label is the control plane's
+    actual decision (`trace.final_action`), not the model's own raw claim in
+    `recommendation_json` -- that raw claim is exactly the rule-violating
+    output that got overridden, and training toward it would teach the model
+    to repeat the mistake the policy engine exists to catch."""
     if not trace.schema_valid or trace.recommendation_json is None:
         return None
+    recommendation = json.loads(trace.recommendation_json)
+    if trace.policy_overridden:
+        recommendation = {**recommendation, "action": trace.final_action}
     return SyntheticExample(
         scenario=redact_pii(trace.prompt),
-        recommendation_json=trace.recommendation_json,
+        recommendation_json=json.dumps(recommendation),
         diversity_tags=(),
     )
 
@@ -187,7 +202,16 @@ def evaluate_case(backend: ModelBackend, model: LoadedModel, case: LabeledCase) 
     """Run one held-out/challenge case through the model. A schema failure
     counts as escalate_l2 (matching the real control-plane failure mode:
     schema failure -> hard escalation) but is flagged schema_valid=False so
-    it never counts as a lucky correct guess."""
+    it never counts as a lucky correct guess.
+
+    `predicted_action` stays the model's *raw* action, deliberately never the
+    post-policy final_action -- this metric is about whether the model
+    itself improved, and a bad model bailed out by a policy override would
+    otherwise show inflated accuracy, masking whether specialization is
+    actually working. `policy_violated` is exactly the metric the harness
+    already defines it as ("would have violated policy had the control
+    plane not intervened") -- computed for real via apply_policy now, no
+    longer hardcoded False."""
     raw = backend.generate(model, case.prompt)
     recommendation = validate_output(raw)
     if recommendation is None:
@@ -199,12 +223,13 @@ def evaluate_case(backend: ModelBackend, model: LoadedModel, case: LabeledCase) 
             policy_violated=False,
             schema_valid=False,
         )
+    policy_decision = apply_policy(recommendation)
     return EvaluatedCase(
         alert_id=case.alert_id,
         true_action=case.true_action,
         predicted_action=recommendation.action,
         confidence=recommendation.confidence,
-        policy_violated=False,
+        policy_violated=policy_decision.overridden,
         schema_valid=True,
     )
 

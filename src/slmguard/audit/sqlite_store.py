@@ -38,11 +38,15 @@ _COLUMNS = (
     "confidence",
     "model_version",
     "backend_name",
+    "policy_version",
+    "policy_overridden",
+    "policy_violated_rule_ids",
 )
 
 _COLUMN_TYPES = {
     "schema_valid": "INTEGER",
     "confidence": "REAL",
+    "policy_overridden": "INTEGER",
 }
 
 
@@ -70,6 +74,7 @@ class SQLiteAuditStore(AuditStore):
         row_hash = _hash_row(prev_hash, trace)
         fields = asdict(trace)
         fields["schema_valid"] = int(fields["schema_valid"])
+        fields["policy_overridden"] = int(fields["policy_overridden"])
         placeholders = ", ".join("?" for _ in _COLUMNS)
         self._conn.execute(
             f"INSERT INTO traces ({', '.join(_COLUMNS)}, prev_hash, row_hash) "
@@ -130,5 +135,6 @@ def _row_to_stored_trace(row: tuple) -> StoredTrace:
     field_values = dict(zip(_COLUMNS, row[1 : 1 + len(_COLUMNS)]))
     prev_hash, row_hash = row[1 + len(_COLUMNS) : 3 + len(_COLUMNS)]
     field_values["schema_valid"] = bool(field_values["schema_valid"])
+    field_values["policy_overridden"] = bool(field_values["policy_overridden"])
     trace = TraceRecord(**field_values)
     return StoredTrace(row_id=row_id, trace=trace, prev_hash=prev_hash, row_hash=row_hash)

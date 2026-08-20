@@ -28,6 +28,9 @@ def _trace(**overrides) -> TraceRecord:
         confidence=0.9,
         model_version="mlx-community/Qwen2.5-3B-Instruct-4bit",
         backend_name="mlx",
+        policy_version="policy-v1",
+        policy_overridden=False,
+        policy_violated_rule_ids="[]",
     )
     fields.update(overrides)
     return TraceRecord(**fields)

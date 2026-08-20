@@ -24,6 +24,7 @@ from slmguard.backends.base import validate_output
 from slmguard.backends.types import LoRAConfig
 from slmguard.config import load_settings
 from slmguard.evaluation import ChallengeSet, HeldOutSet, LabeledCase, validate_held_out_set
+from slmguard.policy import apply_policy
 from slmguard.schema import Action
 from slmguard.specialization import DEFAULT_CONFIDENCE_THRESHOLD, run_cycle
 
@@ -64,9 +65,11 @@ def generate_data(ctx: click.Context) -> None:
 @click.option("--prompt", required=True, help="A single fraud-triage prompt to test end-to-end.")
 @click.pass_context
 def run_baseline(ctx: click.Context, prompt: str) -> None:
-    """Smoke-test the active backend: load the configured model version and
-    generate one recommendation. This is the thinnest possible slice through
-    ModelBackend.load_model -> ModelBackend.generate -> schema validation."""
+    """Smoke-test the active backend: load the configured model version,
+    generate one recommendation, validate its schema, and apply the policy
+    engine. This is the thinnest possible slice through ModelBackend.load_model
+    -> ModelBackend.generate -> schema validation -> policy engine -- the
+    control plane's actual decision path, not just the raw model call."""
     settings = ctx.obj["settings"]
     backend = get_backend(settings.backend)
     click.echo(f"Backend: {backend.name} | model: {settings.model_version}")
@@ -74,6 +77,7 @@ def run_baseline(ctx: click.Context, prompt: str) -> None:
     model = backend.load_model(settings.model_version)
     raw = backend.generate(model, prompt)
     recommendation = validate_output(raw)
+    policy_decision = apply_policy(recommendation) if recommendation else None
 
     audit_store = get_audit_store(settings.audit_store.backend, settings.audit_store.location)
     trace = TraceRecord(
@@ -84,10 +88,17 @@ def run_baseline(ctx: click.Context, prompt: str) -> None:
         raw_output=raw.text,
         schema_valid=recommendation is not None,
         recommendation_json=recommendation.model_dump_json() if recommendation else None,
-        final_action=recommendation.action.value if recommendation else "escalate",
+        final_action=(
+            policy_decision.final_action.value if policy_decision else "escalate"
+        ),
         confidence=recommendation.confidence if recommendation else None,
         model_version=settings.model_version,
         backend_name=backend.name,
+        policy_version=policy_decision.policy_version if policy_decision else None,
+        policy_overridden=policy_decision.overridden if policy_decision else False,
+        policy_violated_rule_ids=(
+            json.dumps(list(policy_decision.violated_rule_ids)) if policy_decision else "[]"
+        ),
     )
     audit_store.append(trace)
 
@@ -96,6 +107,13 @@ def run_baseline(ctx: click.Context, prompt: str) -> None:
         raise SystemExit(1)
 
     click.echo(recommendation.model_dump_json(indent=2))
+    if policy_decision.overridden:
+        click.echo(
+            f"POLICY OVERRIDE ({policy_decision.policy_version}): rule(s) "
+            f"{list(policy_decision.violated_rule_ids)} forced final_action="
+            f"{policy_decision.final_action.value} (model recommended "
+            f"{policy_decision.original_action.value})"
+        )
 
 
 def _load_labeled_cases(path: Path) -> tuple[str, tuple[LabeledCase, ...]]:

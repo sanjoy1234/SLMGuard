@@ -70,6 +70,9 @@ def _trace(**overrides) -> TraceRecord:
         confidence=0.5,
         model_version="fake-model",
         backend_name="fake",
+        policy_version="policy-v1",
+        policy_overridden=False,
+        policy_violated_rule_ids="[]",
     )
     fields.update(overrides)
     return TraceRecord(**fields)
@@ -95,6 +98,39 @@ def test_convert_trace_redacts_pii_in_scenario():
     assert example is not None
     assert "219-09-9999" not in example.scenario
     assert example.recommendation_json == trace.recommendation_json
+
+
+def test_convert_trace_keeps_raw_action_when_not_overridden():
+    trace = _trace(policy_overridden=False)
+    example = convert_trace(trace)
+    assert json.loads(example.recommendation_json)["action"] == "escalate_l2"
+
+
+def test_convert_trace_uses_policy_final_action_when_overridden():
+    # The model's own raw claim ("approve") is exactly the rule-violating
+    # output the policy engine overrode -- the training target must be the
+    # control plane's actual decision, not that raw claim.
+    trace = _trace(
+        recommendation_json=_recommendation_json(action="approve"),
+        final_action="escalate_l2",
+        policy_overridden=True,
+        policy_violated_rule_ids='["no_silent_approve_high_risk"]',
+    )
+    example = convert_trace(trace)
+    assert example is not None
+    parsed = json.loads(example.recommendation_json)
+    assert parsed["action"] == "escalate_l2"
+    assert parsed["risk_score"] == json.loads(trace.recommendation_json)["risk_score"]
+
+
+def test_select_traces_includes_policy_overridden_traces(tmp_path):
+    store = SQLiteAuditStore(str(tmp_path / "a.db"))
+    store.append(_trace(trace_id="overridden", confidence=0.95, policy_overridden=True))
+    store.append(_trace(trace_id="clean", confidence=0.95, policy_overridden=False))
+
+    selection = select_traces(store, confidence_threshold=0.6)
+
+    assert {t.trace_id for t in selection.selected} == {"overridden"}
 
 
 def test_select_traces_filters_to_low_confidence_and_schema_failures(tmp_path):

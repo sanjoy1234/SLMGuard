@@ -2,13 +2,13 @@
 
 Companion document to `docs/technical-build-plan-v5.md`, "Evaluation Harness (fully specified)" and "Promotion Gate." Makes those sections precise and executable: exact metric formulas, exact construction/freezing rules for the held-out and challenge sets, and an explicit mapping from computed metrics to promotion-gate outcomes, including "no promotion this cycle."
 
-Scope note: this defines the harness and implements everything about it that's mechanically computable (`slmguard.evaluation`) — it does **not** generate the held-out or challenge set's actual case content, run a specialization cycle, or implement the policy engine. Those depend on `generate-data` and the policy engine, neither of which exist yet.
+Scope note: this defines the harness and implements everything about it that's mechanically computable (`slmguard.evaluation`) — it does **not** generate the held-out or challenge set's actual case content or run a specialization cycle; those depend on `generate-data`, which doesn't exist yet. The policy engine (`slmguard.policy`, added 2026-08-20) does exist now — `policy_violated` below is computed for real, not a future placeholder.
 
 ---
 
 ## 1. Metrics — precise definitions
 
-All metrics are computed over a set of `EvaluatedCase` records: a held-out or challenge-set case's ground-truth `true_action`, a candidate model's `predicted_action` and `confidence`, and a `policy_violated` flag supplied by the (future) policy engine's check of that specific prediction against the case.
+All metrics are computed over a set of `EvaluatedCase` records: a held-out or challenge-set case's ground-truth `true_action`, a candidate model's `predicted_action` and `confidence`, and a `policy_violated` flag computed by `slmguard.policy.apply_policy` against that specific prediction (see `docs/policy-engine-v1.md`).
 
 **Overall accuracy**
 `accuracy = (# cases where predicted_action == true_action) / total cases`
