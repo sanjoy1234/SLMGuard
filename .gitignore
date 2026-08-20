@@ -12,3 +12,7 @@ data/
 models/
 *.sqlite
 *.sqlite3
+
+# secrets — never committed
+.env
+*.env

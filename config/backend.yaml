@@ -35,13 +35,20 @@ audit_store:
 
 # Which Teacher implementation generate-data uses to produce synthetic
 # scenario/label pairs. OpenRouter is the Phase 1 default (see
-# docs/policy-engine-v1.md-adjacent docs/generate-data-v1.md) -- swapping to
-# a direct Claude API teacher or a larger local model means implementing
-# src/slmguard/teacher/base.py's Teacher interface again, nothing else
-# should need to change. Requires OPENROUTER_API_KEY in the environment.
-# model_id: PLACEHOLDER pending a live query of OpenRouter's free-tier
-# catalog (see slmguard.teacher.openrouter_teacher.list_free_models) --
-# do not treat this value as verified until that query has run.
+# docs/generate-data-v1.md) -- swapping to a direct Claude API teacher or a
+# larger local model means implementing src/slmguard/teacher/base.py's
+# Teacher interface again, nothing else should need to change. Requires
+# OPENROUTER_API_KEY in the environment.
+#
+# model_id chosen 2026-08-20 by querying OpenRouter's live free-tier catalog
+# (slmguard.teacher.openrouter_teacher.list_free_models): the strongest
+# NVIDIA Nemotron free variant whose free tier still supports
+# response_format/structured_outputs (the larger nemotron-3-ultra-550b-a55b
+# free variant does not support structured output, per the live catalog --
+# reliability for this JSON-generation task mattered more than raw size).
+# OpenRouterTeacher refuses at construction time to run any model not
+# confirmed free by that same live catalog -- this value is enforced, not
+# just documented.
 teacher:
   backend: openrouter
-  model_id: "PLACEHOLDER_PENDING_LIVE_MODEL_SELECTION"
+  model_id: "nvidia/nemotron-3-super-120b-a12b:free"

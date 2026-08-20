@@ -43,10 +43,22 @@ Respond with ONLY a single JSON object with exactly two keys, no other text befo
 {{"scenario": "<the fraud alert scenario as plain text>", "recommendation": {{<the assessment JSON exactly as specified above>}}}}"""
 
 
+class NotFreeModelError(ValueError):
+    """Raised when a configured model_id is not confirmed free on OpenRouter.
+    This project never uses a paid OpenRouter model -- enforced here, not
+    just documented as a preference."""
+
+
 class OpenRouterTeacher(Teacher):
     name = "openrouter"
 
-    def __init__(self, model_id: str, api_key: str | None = None, timeout: float = 60.0):
+    def __init__(
+        self,
+        model_id: str,
+        api_key: str | None = None,
+        timeout: float = 60.0,
+        verify_free: bool = True,
+    ):
         self._model_id = model_id
         self._api_key = api_key or os.environ.get("OPENROUTER_API_KEY")
         self._timeout = timeout
@@ -54,6 +66,28 @@ class OpenRouterTeacher(Teacher):
             raise ValueError(
                 "OpenRouterTeacher requires an API key: set OPENROUTER_API_KEY in the "
                 "environment, or construct with api_key=... explicitly."
+            )
+        if verify_free:
+            self._assert_model_is_free()
+
+    def _assert_model_is_free(self) -> None:
+        """Fail loud and fail closed: refuse to proceed unless the live
+        catalog confirms this exact model_id costs nothing. A model that
+        isn't found at all is treated the same as a paid one -- cost must be
+        confirmed, never assumed."""
+        pricing = _fetch_model_pricing(self._model_id, self._api_key, self._timeout)
+        if pricing is None:
+            raise NotFreeModelError(
+                f"OpenRouterTeacher: model '{self._model_id}' was not found in the "
+                "live OpenRouter catalog -- refusing to proceed. This project only "
+                "ever uses confirmed-free models."
+            )
+        prompt_cost, completion_cost = pricing
+        if prompt_cost != 0.0 or completion_cost != 0.0:
+            raise NotFreeModelError(
+                f"OpenRouterTeacher: model '{self._model_id}' is NOT free "
+                f"(prompt={prompt_cost}/token, completion={completion_cost}/token). "
+                "This project only ever uses free OpenRouter models -- refusing to proceed."
             )
 
     def generate(self, spec: GenerationSpec) -> TeacherExample:
@@ -83,6 +117,7 @@ class OpenRouterTeacher(Teacher):
             {
                 "model": self._model_id,
                 "messages": [{"role": "user", "content": prompt}],
+                "response_format": {"type": "json_object"},
             }
         ).encode("utf-8")
         request = urllib.request.Request(
@@ -103,19 +138,35 @@ class OpenRouterTeacher(Teacher):
         return payload["choices"][0]["message"]["content"]
 
 
+def _fetch_all_models(api_key: str | None, timeout: float) -> list[dict]:
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+    request = urllib.request.Request(OPENROUTER_MODELS_URL, headers=headers)
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        payload = json.loads(response.read())
+    return payload.get("data", [])
+
+
+def _fetch_model_pricing(
+    model_id: str, api_key: str | None, timeout: float
+) -> tuple[float, float] | None:
+    """Return (prompt_cost, completion_cost) per token for model_id from the
+    live catalog, or None if the model isn't found."""
+    for m in _fetch_all_models(api_key, timeout):
+        if m.get("id") == model_id:
+            pricing = m.get("pricing", {})
+            return float(pricing.get("prompt", "1")), float(pricing.get("completion", "1"))
+    return None
+
+
 def list_free_models(api_key: str | None = None, timeout: float = 30.0) -> list[dict]:
     """Query OpenRouter's live model catalog and return only entries with
     zero prompt/completion cost. Not called by `generate` itself -- this is
     a discovery helper for picking `model_id`, since OpenRouter's free-tier
     catalog changes over time and shouldn't be guessed/hardcoded."""
     key = api_key or os.environ.get("OPENROUTER_API_KEY")
-    headers = {"Authorization": f"Bearer {key}"} if key else {}
-    request = urllib.request.Request(OPENROUTER_MODELS_URL, headers=headers)
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        payload = json.loads(response.read())
     return [
         m
-        for m in payload.get("data", [])
+        for m in _fetch_all_models(key, timeout)
         if float(m.get("pricing", {}).get("prompt", "1")) == 0.0
         and float(m.get("pricing", {}).get("completion", "1")) == 0.0
     ]

@@ -40,10 +40,16 @@ Every accepted example carries a `TeacherMetadata` (`teacher_name`, `model_id`, 
 
 This is deliberately the same shape `slmguard.rubric.SyntheticExample` and `slmguard.specialization.convert_trace`'s output already use (`scenario`/`recommendation_json`/`diversity_tags`) plus the `teacher` provenance block — a generated batch and a trace-converted batch are interchangeable inputs to the same downstream rubric-scoring and pool-building code.
 
+## Never a paid model — enforced, not just documented
+
+`OpenRouterTeacher.__init__` queries the live catalog (`_assert_model_is_free`) and refuses to construct if the configured `model_id` isn't confirmed to cost exactly zero for both prompt and completion tokens — a model missing from the catalog is treated the same as a paid one, fail closed. This is a hard runtime guard per explicit user instruction ("no paid model from OpenRouter ever"), not a config convention someone could accidentally violate by editing YAML.
+
 ## Chosen model
 
-**Pending.** `config/backend.yaml`'s `teacher.model_id` is a placeholder (`PLACEHOLDER_PENDING_LIVE_MODEL_SELECTION`) until `slmguard.teacher.openrouter_teacher.list_free_models()` is run against the live OpenRouter catalog with a real API key — OpenRouter's free-tier lineup changes over time, so hardcoding a guess from training-data knowledge risked picking a model that's since been deprecated or never was actually free. Update this section once a model is chosen, with the date and why.
+**`nvidia/nemotron-3-super-120b-a12b:free`**, chosen 2026-08-20 by querying the live catalog (`list_free_models()`) for NVIDIA Nemotron variants, per explicit user preference. 8 free Nemotron variants existed at query time, from `nemotron-3.5-lightning` (30B total/3B active) up to `nemotron-3-ultra-550b-a55b` (550B total/55B active, described as NVIDIA's "frontier-reasoning" model). Deliberately did **not** pick the largest (`ultra-550b-a55b:free`): its free-tier variant's `supported_parameters` list is missing `response_format`/`structured_outputs`, while `nemotron-3-super-120b-a12b:free` (120B total/12B active, "complex multi-agent applications") supports both on the free tier — for a task that's entirely about producing clean, parseable JSON, that reliability property mattered more than the extra raw size. `OpenRouterTeacher._call` requests `response_format: {"type": "json_object"}` accordingly.
+
+**Live-verified**, not just configured: ran `slmguard generate-data --n-per-category 1` for real against the live API. Result: 4/4 examples accepted on the first attempt (100% rubric pass rate), one per required diversity category, in well under a minute total. Sample quality was genuinely strong — e.g. the `transaction_type` example correctly modeled a card-testing pattern (a $0.99 probe charge followed 10 minutes later by a $2,450 purchase at the same online merchant) with a coherent `decline` rationale citing the specific velocity/amount/time signals; the `policy_boundary` example explicitly reasoned about sitting "exactly at the escalate_l2/decline boundary (threshold 0.5)." Each diversity focus was genuinely reflected in its example's content, not just its tag.
 
 ---
 
-**Status:** v1. Interface, orchestration, and rubric enforcement built and unit-tested against a `FakeTeacher`/mocked HTTP responses — no live network call made yet. Not yet run end-to-end against the real OpenRouter API pending a model choice and API credentials.
+**Status:** v1. Interface, orchestration, and rubric enforcement built and unit-tested against a `FakeTeacher`/mocked HTTP responses. Live-verified end to end against the real OpenRouter API and the chosen free model — not just unit-tested, actually run.
