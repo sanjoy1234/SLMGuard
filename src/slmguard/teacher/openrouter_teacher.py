@@ -99,6 +99,11 @@ class OpenRouterTeacher(Teacher):
                 f"OpenRouterTeacher: no JSON object found in model response: {response_text[:300]!r}"
             )
         envelope = json.loads(envelope_json)
+        if "scenario" not in envelope or "recommendation" not in envelope:
+            raise ValueError(
+                "OpenRouterTeacher: model response JSON is missing 'scenario' and/or "
+                f"'recommendation': {envelope_json[:300]!r}"
+            )
         scenario = envelope["scenario"]
         recommendation = envelope["recommendation"]
         return TeacherExample(

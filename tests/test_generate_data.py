@@ -95,6 +95,55 @@ def test_generate_batch_rejects_after_max_attempts_without_folding_in():
     assert teacher.call_count == 2 * len(specs)
 
 
+class FlakyTeacher(Teacher):
+    """Raises for the first `n_failures` calls, then generates cleanly --
+    simulates a real teacher occasionally returning a malformed response."""
+
+    name = "flaky"
+
+    def __init__(self, n_failures: int):
+        self._remaining_failures = n_failures
+        self.call_count = 0
+
+    def generate(self, spec: GenerationSpec) -> TeacherExample:
+        self.call_count += 1
+        if self._remaining_failures > 0:
+            self._remaining_failures -= 1
+            raise ValueError("simulated malformed teacher response")
+        return TeacherExample(
+            scenario=GOOD_SCENARIO,
+            recommendation_json=_recommendation_json(),
+            diversity_tags=spec.diversity_tags,
+            metadata=TeacherMetadata(
+                teacher_name="flaky", model_id="flaky-model", generated_at="2026-08-20T00:00:00+00:00"
+            ),
+        )
+
+
+def test_generate_batch_survives_a_single_generation_failure_without_crashing():
+    specs = default_generation_specs(n_per_category=3)  # 12 specs
+    teacher = FlakyTeacher(n_failures=1)
+
+    result = generate_batch(teacher, specs)
+
+    assert result.accepted is True
+    assert len(result.generated) == len(specs) - 1
+    # pass rate is computed against the full spec count, not just successes
+    assert result.last_batch_score.total == len(specs)
+    assert result.last_batch_score.passed == len(specs) - 1
+
+
+def test_generate_batch_counts_generation_failures_against_pass_rate():
+    specs = default_generation_specs(n_per_category=2)  # 8 specs
+    # 3 failures out of 8 -> at best 5/8 = 62.5%, below the 85% threshold
+    teacher = FlakyTeacher(n_failures=3)
+
+    result = generate_batch(teacher, specs, max_attempts=1)
+
+    assert result.accepted is False
+    assert result.last_batch_score.pass_rate < 0.85
+
+
 def test_write_generated_batch_includes_teacher_metadata(tmp_path):
     teacher = FakeTeacher(good=True)
     specs = default_generation_specs(n_per_category=1)

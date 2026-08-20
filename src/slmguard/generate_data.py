@@ -22,7 +22,7 @@ from pathlib import Path
 
 from slmguard.rubric import DEFAULT_PASS_RATE, BatchScore, SyntheticExample, score_batch
 from slmguard.teacher.base import Teacher
-from slmguard.teacher.types import GenerationSpec, TeacherMetadata
+from slmguard.teacher.types import GenerationSpec, TeacherExample, TeacherMetadata
 
 DEFAULT_CATEGORY_GUIDANCE = {
     "transaction_type": (
@@ -83,10 +83,22 @@ def generate_batch(
     """Generate one full batch, scoring it against the rubric each attempt.
     Below-threshold batches are regenerated from scratch, not patched --
     returns accepted=False if `max_attempts` is exhausted without clearing
-    the threshold."""
+    the threshold.
+
+    A single teacher call raising (a malformed response, a transient API
+    error) does not crash the batch -- it counts as a failure against the
+    *full* spec count for pass-rate purposes, same as a rubric-failing
+    example, so a batch with several broken generations can't look
+    artificially clean just because the denominator shrank."""
     last_score: BatchScore | None = None
     for attempt in range(1, max_attempts + 1):
-        teacher_examples = [teacher.generate(spec) for spec in specs]
+        teacher_examples: list[TeacherExample] = []
+        for spec in specs:
+            try:
+                teacher_examples.append(teacher.generate(spec))
+            except Exception:
+                continue
+
         candidates = [
             SyntheticExample(
                 scenario=te.scenario,
@@ -95,12 +107,22 @@ def generate_batch(
             )
             for te in teacher_examples
         ]
-        last_score = score_batch(candidates, pass_rate_threshold=pass_rate_threshold)
+        raw_score = score_batch(candidates, pass_rate_threshold=pass_rate_threshold)
+        total = len(specs)
+        pass_rate = raw_score.passed / total if total else 0.0
+        last_score = BatchScore(
+            total=total,
+            passed=raw_score.passed,
+            pass_rate=pass_rate,
+            accepted=pass_rate >= pass_rate_threshold,
+            missing_diversity_categories=raw_score.missing_diversity_categories,
+            results=raw_score.results,
+        )
 
         if last_score.accepted:
             passing = tuple(
                 GeneratedExample(example=ex, metadata=te.metadata)
-                for ex, te, result in zip(candidates, teacher_examples, last_score.results)
+                for ex, te, result in zip(candidates, teacher_examples, raw_score.results)
                 if result.passed
             )
             return BatchGenerationResult(

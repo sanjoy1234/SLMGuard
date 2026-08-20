@@ -104,6 +104,22 @@ def test_openrouter_teacher_raises_clearly_on_unparseable_response(monkeypatch):
         teacher.generate(GenerationSpec(diversity_tags=(), guidance="test"))
 
 
+def test_openrouter_teacher_raises_clearly_on_missing_envelope_keys(monkeypatch):
+    # A valid JSON object, but missing the "scenario"/"recommendation" keys
+    # this teacher's envelope contract requires -- must not surface as a
+    # raw KeyError.
+    monkeypatch.setattr(
+        "urllib.request.urlopen",
+        lambda request, timeout=None: _FakeHTTPResponse(
+            _openrouter_response(json.dumps({"unexpected": "shape"}))
+        ),
+    )
+    teacher = OpenRouterTeacher(model_id="some/model", api_key="test-key", verify_free=False)
+
+    with pytest.raises(ValueError, match="missing 'scenario'"):
+        teacher.generate(GenerationSpec(diversity_tags=(), guidance="test"))
+
+
 def test_openrouter_teacher_raises_clearly_on_http_error(monkeypatch):
     def fake_urlopen(request, timeout=None):
         raise urllib.error.HTTPError(
