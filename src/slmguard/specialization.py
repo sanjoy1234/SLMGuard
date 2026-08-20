@@ -215,11 +215,47 @@ def evaluate_model(
     return summarize([evaluate_case(backend, model, c) for c in cases])
 
 
-def count_challenge_failures(
-    backend: ModelBackend, model: LoadedModel, challenge_set: ChallengeSet
-) -> int:
-    evaluated = [evaluate_case(backend, model, c) for c in challenge_set.cases]
-    return sum(1 for e in evaluated if not e.correct)
+@dataclass(frozen=True)
+class ChallengeSetReport:
+    """True regression vs. baseline is the primary signal -- a case the
+    baseline already failed isn't a regression when the candidate fails it
+    too. Absolute candidate failure count is kept as secondary detail: a
+    candidate that fails every case is worth knowing about even if none of
+    those are "new" relative to an equally-broken baseline."""
+
+    total: int
+    baseline_failures: int
+    candidate_failures: int
+    new_failures: int
+    new_failure_alert_ids: tuple[str, ...]
+
+
+def evaluate_challenge_set(
+    backend: ModelBackend,
+    baseline_model: LoadedModel,
+    candidate_model: LoadedModel,
+    challenge_set: ChallengeSet,
+) -> ChallengeSetReport:
+    """Run the challenge set against both models and report true regression:
+    a case the baseline got right that the candidate gets wrong. A case
+    neither model gets right is not a regression -- it's a pre-existing gap
+    the specialization loop didn't cause and can't be blamed for here."""
+    baseline_evaluated = [evaluate_case(backend, baseline_model, c) for c in challenge_set.cases]
+    candidate_evaluated = [evaluate_case(backend, candidate_model, c) for c in challenge_set.cases]
+
+    new_failure_ids = tuple(
+        case.alert_id
+        for case, b, c in zip(challenge_set.cases, baseline_evaluated, candidate_evaluated)
+        if b.correct and not c.correct
+    )
+
+    return ChallengeSetReport(
+        total=len(challenge_set.cases),
+        baseline_failures=sum(1 for e in baseline_evaluated if not e.correct),
+        candidate_failures=sum(1 for e in candidate_evaluated if not e.correct),
+        new_failures=len(new_failure_ids),
+        new_failure_alert_ids=new_failure_ids,
+    )
 
 
 @dataclass(frozen=True)
@@ -230,6 +266,7 @@ class CycleResult:
     decision: PromotionDecision | None
     baseline_summary: EvaluationSummary | None
     candidate_summary: EvaluationSummary | None
+    challenge_report: ChallengeSetReport | None
 
 
 def run_cycle(
@@ -265,6 +302,7 @@ def run_cycle(
             decision=None,
             baseline_summary=None,
             candidate_summary=None,
+            challenge_report=None,
         )
 
     base_model = backend.load_model(base_model_version)
@@ -278,12 +316,12 @@ def run_cycle(
     fused_model = backend.load_model(str(fused_version.fused_weights_path))
 
     candidate_summary = evaluate_model(backend, fused_model, list(held_out_set.cases))
-    challenge_failures = count_challenge_failures(backend, fused_model, challenge_set)
+    challenge_report = evaluate_challenge_set(backend, base_model, fused_model, challenge_set)
 
     decision = evaluate_promotion(
         candidate=candidate_summary,
         baseline=baseline_summary,
-        challenge_set_new_failures=challenge_failures,
+        challenge_set_new_failures=challenge_report.new_failures,
         thresholds=promotion_thresholds,
     )
 
@@ -294,4 +332,5 @@ def run_cycle(
         decision=decision,
         baseline_summary=baseline_summary,
         candidate_summary=candidate_summary,
+        challenge_report=challenge_report,
     )

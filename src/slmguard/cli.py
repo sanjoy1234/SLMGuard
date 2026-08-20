@@ -212,6 +212,15 @@ def specialize(
         click.echo(f"Baseline accuracy: {result.baseline_summary.accuracy:.3f}")
     if result.candidate_summary is not None:
         click.echo(f"Candidate accuracy: {result.candidate_summary.accuracy:.3f}")
+    if result.challenge_report is not None:
+        cr = result.challenge_report
+        click.echo(
+            f"Challenge set: {cr.new_failures} new failure(s) vs. baseline "
+            f"(candidate failed {cr.candidate_failures}/{cr.total}, "
+            f"baseline failed {cr.baseline_failures}/{cr.total})."
+        )
+        if cr.new_failure_alert_ids:
+            click.echo(f"  New failures: {', '.join(cr.new_failure_alert_ids)}")
     click.echo(f"Decision: {result.reason}")
 
     if not result.promoted:

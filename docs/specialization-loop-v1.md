@@ -8,7 +8,7 @@ Companion document to `docs/technical-build-plan-v5.md`, "Specialization Loop." 
 2. **Convert to training examples** (`convert_trace`, `build_specialization_pool`) — a trace with a valid label becomes a `SyntheticExample` (scenario redacted for PII, paired with its recorded recommendation); a schema-failure trace has no valid label to imitate and is counted, not converted. Every candidate then goes through `slmguard.rubric.score_batch` — only rubric-passing examples enter the pool, same discipline the plan requires for the held-out set.
 3. **Fine-tune with safe LoRA settings** (`write_training_dataset` + `ModelBackend.fine_tune`) — the pool is split into `train.jsonl`/`valid.jsonl` and handed to the configured backend, using the `batch_size≤2` / `grad_checkpoint=true` defaults validated in `docs/lora-memory-footprint-spike-v1.md`.
 4. **Fuse** (`ModelBackend.fuse_adapters`) — merges the trained adapter into a new deployable model version.
-5. **Evaluate** (`evaluate_model`, `count_challenge_failures`) — runs both the pre-fine-tune base model and the fused candidate against the same held-out set (a fair, cycle-local baseline — there's no persisted prior-cycle baseline yet, since this is cycle one) and against the challenge set.
+5. **Evaluate** (`evaluate_model`, `evaluate_challenge_set`) — runs both the pre-fine-tune base model and the fused candidate against the same held-out set (a fair, cycle-local baseline — there's no persisted prior-cycle baseline yet, since this is cycle one) and against the challenge set. The challenge-set check measures *true regression*: a case the baseline already gets wrong isn't blamed on the candidate — see "Fix: challenge-set regression semantics" below.
 6. **Promote** (`evaluate_promotion`, unchanged from `docs/evaluation-harness-v1.md`) — the four-gate decision, returning an explicit `PromotionDecision` where "no promotion this cycle" is a first-class, reasoned outcome.
 
 `run_cycle` wires all six into one function and always returns a `CycleResult` with a populated `reason` — whether it ran the full pipeline or stopped early.
@@ -33,6 +33,16 @@ Both were pre-existing gaps in `MLXBackend`, invisible until something actually 
 
 `MLXBackend.fine_tune` also now passes `--val-batches -1` (use the entire validation set) rather than mlx_lm's own batching default, for the same small-pool robustness reason.
 
+## Fix: challenge-set regression semantics (2026-08-20)
+
+A rigorous validation pass (real fine-tune, real fuse, real independent re-checks) surfaced a third real bug: the `regression_challenge_set` promotion gate is named for *regression* — a case the baseline got right that the candidate now gets wrong — but `count_challenge_failures` (the original implementation) only ever evaluated the candidate and counted its absolute failures. In the validated run, both the base model and the candidate got both challenge cases wrong; that's not a regression, it's a pre-existing gap neither model version closes, but the old code blocked promotion on it exactly as if the candidate had broken something that used to work.
+
+Fixed: `count_challenge_failures` is replaced by `evaluate_challenge_set`, which runs **both** the baseline and the candidate against the challenge set and returns a `ChallengeSetReport` with:
+- `new_failures` (primary signal fed into `evaluate_promotion`) — cases the baseline got right that the candidate gets wrong.
+- `baseline_failures` / `candidate_failures` (secondary, absolute detail) — kept and surfaced (CLI prints both) because a candidate that's simply bad on the challenge set is still worth seeing, even when none of its failures are technically "new."
+
+The gate's own name and criterion in `docs/evaluation-harness-v1.md` ("no new failures on the curated set") were already correct — the bug was entirely in how `specialization.py` computed the integer it fed into that already-correct gate. Locked in by three new tests in `tests/test_specialization.py`, including one that reproduces the exact validated scenario (both models fail the same case) and asserts promotion is no longer blocked by it.
+
 ## First real cycle result (2026-08-20)
 
 Run against the real MLX backend and real audit store (no mocks), via:
@@ -54,7 +64,22 @@ Candidate accuracy: 0.500
 Decision: no promotion this cycle: failed gate(s): regression_challenge_set
 ```
 
-Every step executed against real infrastructure: 8 real traces (generated via real `run-baseline` calls) scanned and filtered, 7 converted and rubric-passed, a real `mlx_lm.lora` fine-tune ran for 3 iterations (train loss 2.835, val loss 2.911 → 2.730), a real `mlx_lm.fuse` merge produced a candidate model, both the base and candidate models were evaluated against the same 8-case held-out set and 2-case challenge set, and the promotion gate correctly withheld promotion because of a challenge-set regression — a legitimate, well-reasoned "no promotion this cycle," not a crash or a short-circuit on missing infrastructure. The audit chain (`verify_chain()`) remained intact throughout.
+Every step executed against real infrastructure: 8 real traces (generated via real `run-baseline` calls) scanned and filtered, 7 converted and rubric-passed, a real `mlx_lm.lora` fine-tune ran for 3 iterations (train loss 2.835, val loss 2.911 → 2.730), a real `mlx_lm.fuse` merge produced a candidate model, both the base and candidate models were evaluated against the same 8-case held-out set and 2-case challenge set, and the promotion gate withheld promotion — a legitimate, well-reasoned "no promotion this cycle," not a crash or a short-circuit on missing infrastructure. The audit chain (`verify_chain()`) remained intact throughout.
+
+**Correction, found during a rigorous follow-up validation pass:** at the time, this was reported as "withheld because of a challenge-set regression." Independently re-checking both models against each challenge case afterward showed the base model failed both cases too — so this was never a true regression, it was the pre-existing `count_challenge_failures` bug described above (fixed the same day).
+
+Re-ran the identical cycle after the fix, same audit store, same held-out/challenge sets. Training reproduced bit-for-bit (same train loss 2.835, same adapter/fused-model weight hashes — `mlx_lm.lora`'s default `seed=0` makes the whole pipeline deterministic given unchanged inputs). The promotion outcome changed:
+
+```
+promoted: True
+reason: all gates passed
+  gate=accuracy                 passed=True  detail=candidate=0.5000 baseline=0.5000 max_drop=0.0200
+  gate=policy_safety_compliance passed=True  detail=policy_violation_rate=0.0000 (zero tolerance)
+  gate=confidence_calibration   passed=True  detail=ece=0.4062 (monitored only, not yet a hard gate)
+  gate=regression_challenge_set passed=True  detail=new_failures=0
+```
+
+Worth being explicit about *why* this now promotes despite candidate accuracy not improving (0.500 vs. 0.500, unchanged): the accuracy gate is a **no-regression** check (`candidate >= baseline - max_drop`), not a **must-improve** check, and both challenge cases were already-broken for the baseline too, so there's genuinely nothing here for the gate to catch. That's the gate behaving exactly as specified, not a new bug — but it's also a fair signal that a tie isn't the same as progress, and "promoted" alone shouldn't be read as "this cycle made the model better." A production system would want that distinction surfaced more sharply than the current gate does (e.g. a strict-improvement mode, or a minimum-improvement threshold) — noted as a candidate follow-up, not built here.
 
 That the candidate didn't clearly beat the baseline (0.500 vs. 0.500) is expected and not concerning on its own: 7 examples over 3 iterations with `num_layers=4` is a minimal smoke-scale run, not a real specialization attempt — the plan's own "no promotion" outcome exists precisely for cycles like this one.
 

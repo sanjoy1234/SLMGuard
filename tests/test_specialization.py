@@ -27,6 +27,7 @@ from slmguard.schema import Action
 from slmguard.specialization import (
     build_specialization_pool,
     convert_trace,
+    evaluate_challenge_set,
     redact_pii,
     run_cycle,
     select_traces,
@@ -356,3 +357,88 @@ def test_run_cycle_does_not_promote_when_candidate_regresses(tmp_path):
     assert result.promoted is False
     assert "no promotion this cycle" in result.reason
     assert "accuracy" in result.reason
+
+
+def test_evaluate_challenge_set_reports_true_regression():
+    backend = FakeBackend(
+        base_version="base",
+        base_action=Action.DECLINE,
+        candidate_actions={"CASE-B": Action.APPROVE},  # candidate wrong here, base's fallback is right
+    )
+    base_model = backend.load_model("base")
+    candidate_model = backend.load_model("candidate")
+    challenge_set = ChallengeSet(
+        version="v1",
+        cases=(
+            LabeledCase("A", Action.DECLINE, "CASE-A"),  # both correct (candidate falls back to DECLINE)
+            LabeledCase("B", Action.DECLINE, "CASE-B"),  # base correct, candidate wrong -> regression
+        ),
+    )
+
+    report = evaluate_challenge_set(backend, base_model, candidate_model, challenge_set)
+
+    assert report.total == 2
+    assert report.baseline_failures == 0
+    assert report.candidate_failures == 1
+    assert report.new_failures == 1
+    assert report.new_failure_alert_ids == ("B",)
+
+
+def test_evaluate_challenge_set_shared_failure_is_not_a_regression():
+    # Both base and candidate get the same case wrong (candidate_actions empty
+    # -> candidate falls back to the same base_action) -- a pre-existing gap,
+    # not something the specialization cycle caused.
+    backend = FakeBackend(base_version="base", base_action=Action.APPROVE, candidate_actions={})
+    base_model = backend.load_model("base")
+    candidate_model = backend.load_model("candidate")
+    challenge_set = ChallengeSet(
+        version="v1", cases=(LabeledCase("C", Action.DECLINE, "CASE-C"),)
+    )
+
+    report = evaluate_challenge_set(backend, base_model, candidate_model, challenge_set)
+
+    assert report.baseline_failures == 1
+    assert report.candidate_failures == 1
+    assert report.new_failures == 0
+    assert report.new_failure_alert_ids == ()
+
+
+def test_run_cycle_promotes_despite_shared_challenge_failure(tmp_path):
+    # Regression test for the exact gap found in real-world validation: the
+    # old count_challenge_failures() counted the candidate's absolute
+    # failures and would have blocked promotion here even though the base
+    # model fails the same challenge case too -- not a real regression.
+    store = SQLiteAuditStore(str(tmp_path / "a.db"))
+    for i in range(6):
+        store.append(_trace(trace_id=f"t{i}", confidence=0.4, alert_id=f"ALERT-{i}"))
+
+    backend = FakeBackend(
+        base_version="base-model",
+        base_action=Action.APPROVE,
+        candidate_actions={
+            "CASE-1": Action.APPROVE,
+            "CASE-2": Action.DECLINE,
+            "CASE-3": Action.ESCALATE_L2,
+            "CASE-4": Action.REQUEST_MORE_INFO,
+            "CASE-HARD": Action.APPROVE,  # candidate still wrong here, same as base
+        },
+    )
+    challenge_set = ChallengeSet(
+        version="v1", cases=(LabeledCase("hard-1", Action.DECLINE, "CASE-HARD"),)
+    )
+
+    result = run_cycle(
+        store=store,
+        backend=backend,
+        base_model_version="base-model",
+        held_out_set=_held_out_set(),
+        challenge_set=challenge_set,
+        lora_config=_lora_config(),
+        work_dir=tmp_path / "work",
+    )
+
+    assert result.challenge_report.baseline_failures == 1
+    assert result.challenge_report.candidate_failures == 1
+    assert result.challenge_report.new_failures == 0
+    assert result.promoted is True
+    assert result.reason == "all gates passed"
