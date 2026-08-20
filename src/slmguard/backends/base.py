@@ -55,7 +55,7 @@ class ModelBackend(ABC):
         """Fuse a trained adapter into the base model, producing a new deployable version."""
 
 
-def _extract_json_object(text: str) -> str | None:
+def extract_json_object(text: str) -> str | None:
     """Return the first balanced top-level {...} substring in text, or None.
     Models routinely wrap valid JSON in leading/trailing chatter or run on
     past it after the intended answer; this isolates just the object so
@@ -94,7 +94,7 @@ def validate_output(raw: RawModelOutput) -> Recommendation | None:
     contract (schema failure -> hard escalation, never a silent retry)."""
     if not raw.schema_valid:
         return None
-    candidate = _extract_json_object(raw.text)
+    candidate = extract_json_object(raw.text)
     if candidate is None:
         return None
     try:

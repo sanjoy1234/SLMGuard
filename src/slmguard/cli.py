@@ -24,9 +24,11 @@ from slmguard.backends.base import validate_output
 from slmguard.backends.types import LoRAConfig
 from slmguard.config import load_settings
 from slmguard.evaluation import ChallengeSet, HeldOutSet, LabeledCase, validate_held_out_set
+from slmguard.generate_data import default_generation_specs, generate_batch, write_generated_batch
 from slmguard.policy import apply_policy
 from slmguard.schema import Action
 from slmguard.specialization import DEFAULT_CONFIDENCE_THRESHOLD, run_cycle
+from slmguard.teacher import get_teacher
 
 DEFAULT_CONFIG = Path("config/backend.yaml")
 
@@ -47,17 +49,64 @@ def main(ctx: click.Context, config_path: Path) -> None:
 
 
 @main.command("generate-data")
+@click.option(
+    "--output-dir",
+    "output_dir",
+    type=click.Path(path_type=Path),
+    default=Path("data/generated"),
+    show_default=True,
+    help="Directory to write the accepted batch's JSONL file into.",
+)
+@click.option(
+    "--n-per-category",
+    "n_per_category",
+    type=int,
+    default=3,
+    show_default=True,
+    help="Examples to generate per required diversity category.",
+)
+@click.option(
+    "--max-attempts",
+    "max_attempts",
+    type=int,
+    default=3,
+    show_default=True,
+    help="Regeneration attempts before giving up on a batch, per the rubric's reject/regenerate rule.",
+)
 @click.pass_context
-def generate_data(ctx: click.Context) -> None:
-    """Generate synthetic fraud-alert scenarios via the teacher model, gated
-    by the quality rubric and rejection process. Not yet implemented — the
-    rubric and its automated checks now exist (docs/synthetic-data-quality-
-    rubric-v1.md, slmguard.rubric.score_batch), but there is no teacher-model
-    generation pipeline for it to gate yet."""
-    raise click.ClickException(
-        "generate-data: not implemented yet. The Synthetic Data Quality Rubric "
-        "exists (docs/synthetic-data-quality-rubric-v1.md); still need the "
-        "teacher-model generation pipeline to score against it."
+def generate_data(
+    ctx: click.Context, output_dir: Path, n_per_category: int, max_attempts: int
+) -> None:
+    """Generate synthetic fraud-alert scenarios via the teacher model,
+    gated by the Synthetic Data Quality Rubric's reject/regenerate process
+    (docs/synthetic-data-quality-rubric-v1.md). A batch below the rubric's
+    pass-rate threshold is regenerated from scratch, never folded in as-is;
+    exhausting max_attempts fails the command rather than writing partial
+    data."""
+    settings = ctx.obj["settings"]
+    teacher = get_teacher(settings.teacher.backend, model_id=settings.teacher.model_id)
+    specs = default_generation_specs(n_per_category=n_per_category)
+
+    click.echo(
+        f"Teacher: {teacher.name} | model: {settings.teacher.model_id} | "
+        f"generating {len(specs)} example(s), max {max_attempts} attempt(s)"
+    )
+    result = generate_batch(teacher, specs, max_attempts=max_attempts)
+
+    if not result.accepted:
+        click.echo(
+            f"Batch rejected after {result.attempts} attempt(s): pass_rate="
+            f"{result.last_batch_score.pass_rate:.2f} never cleared the threshold. "
+            "Not writing output.",
+            err=True,
+        )
+        raise SystemExit(1)
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    out_path = write_generated_batch(result, output_dir / f"batch_{timestamp}.jsonl")
+    click.echo(
+        f"Accepted {len(result.generated)} example(s) after {result.attempts} attempt(s) "
+        f"(pass_rate={result.last_batch_score.pass_rate:.2f}). Wrote {out_path}"
     )
 
 

@@ -21,11 +21,17 @@ class AuditStoreSettings(BaseModel):
     location: str
 
 
+class TeacherSettings(BaseModel):
+    backend: str
+    model_id: str
+
+
 class Settings(BaseModel):
     backend: str
     model_version: str
     lora: LoRASettings
     audit_store: AuditStoreSettings
+    teacher: TeacherSettings
 
 
 def load_settings(path: Path) -> Settings:

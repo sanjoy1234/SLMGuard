@@ -32,3 +32,16 @@ lora:
 audit_store:
   backend: sqlite
   location: "data/audit.db"
+
+# Which Teacher implementation generate-data uses to produce synthetic
+# scenario/label pairs. OpenRouter is the Phase 1 default (see
+# docs/policy-engine-v1.md-adjacent docs/generate-data-v1.md) -- swapping to
+# a direct Claude API teacher or a larger local model means implementing
+# src/slmguard/teacher/base.py's Teacher interface again, nothing else
+# should need to change. Requires OPENROUTER_API_KEY in the environment.
+# model_id: PLACEHOLDER pending a live query of OpenRouter's free-tier
+# catalog (see slmguard.teacher.openrouter_teacher.list_free_models) --
+# do not treat this value as verified until that query has run.
+teacher:
+  backend: openrouter
+  model_id: "PLACEHOLDER_PENDING_LIVE_MODEL_SELECTION"
