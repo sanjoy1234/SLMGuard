@@ -22,53 +22,29 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from slmguard.evaluation import ChallengeSet, HeldOutSet, LabeledCase
-from slmguard.generate_data import DEFAULT_CATEGORY_GUIDANCE
+from slmguard.generate_data import ACTION_GUIDANCE, weighted_generation_specs
 from slmguard.schema import Action
 from slmguard.teacher.types import GenerationSpec
 
-ACTION_GUIDANCE = {
-    "approve": (
-        "Construct a scenario where 'approve' is clearly the correct "
-        "action -- routine, low-risk, matches the account's established "
-        "pattern with no meaningful anomaly."
-    ),
-    "decline": (
-        "Construct a scenario where 'decline' is clearly the correct "
-        "action -- strong, unambiguous fraud indicators (e.g. a classic "
-        "card-testing pattern, impossible travel, or a brand-new account "
-        "with an immediate high-value purchase)."
-    ),
-    "escalate_l2": (
-        "Construct a scenario where 'escalate_l2' is clearly the correct "
-        "action -- genuinely ambiguous or conflicting signals that "
-        "warrant human review rather than an automated call."
-    ),
-    "request_more_info": (
-        "Construct a scenario where 'request_more_info' is clearly the "
-        "correct action -- a single missing piece of information (e.g. an "
-        "address mismatch) that would resolve the ambiguity if known."
-    ),
-}
+__all__ = [
+    "ACTION_GUIDANCE",
+    "ConversionStats",
+    "build_prompt",
+    "generated_batches_to_cases",
+    "stratified_generation_specs",
+    "write_challenge_set",
+    "write_held_out_set",
+]
 
 
 def stratified_generation_specs(n_per_action: int = 40) -> list[GenerationSpec]:
-    """One spec per (target action, diversity category) slot, cycling
+    """Equal per-action case of `slmguard.generate_data.weighted_generation_specs`
+    -- one spec per (target action, diversity category) slot, cycling
     through the required diversity categories within each action so the
-    resulting batch covers both axes -- action-class balance for
+    resulting batch covers both axes: action-class balance for
     stratification, and category coverage for the rubric's diversity
     checklist."""
-    categories = list(DEFAULT_CATEGORY_GUIDANCE.items())
-    specs = []
-    for action, action_guidance in ACTION_GUIDANCE.items():
-        for i in range(n_per_action):
-            category, category_guidance = categories[i % len(categories)]
-            specs.append(
-                GenerationSpec(
-                    diversity_tags=(category,),
-                    guidance=f"{action_guidance} Additionally: {category_guidance}",
-                )
-            )
-    return specs
+    return weighted_generation_specs({action: n_per_action for action in ACTION_GUIDANCE})
 
 
 @dataclass(frozen=True)
@@ -102,7 +78,7 @@ def generated_batches_to_cases(
                 LabeledCase(
                     alert_id=recommendation["alert_id"],
                     true_action=Action(action),
-                    prompt=_build_prompt(record["scenario"]),
+                    prompt=build_prompt(record["scenario"]),
                     policy_boundary=is_policy_boundary,
                 )
             )
@@ -114,7 +90,7 @@ def generated_batches_to_cases(
     )
 
 
-def _build_prompt(scenario: str) -> str:
+def build_prompt(scenario: str) -> str:
     """Wrap a generated scenario in the same schema-instruction envelope
     every real triage prompt uses (see run-baseline), so held-out/challenge
     evaluation exercises the model under realistic conditions."""

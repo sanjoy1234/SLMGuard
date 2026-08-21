@@ -56,6 +56,53 @@ def default_generation_specs(n_per_category: int = 3) -> list[GenerationSpec]:
     ]
 
 
+ACTION_GUIDANCE = {
+    "approve": (
+        "Construct a scenario where 'approve' is clearly the correct "
+        "action -- routine, low-risk, matches the account's established "
+        "pattern with no meaningful anomaly."
+    ),
+    "decline": (
+        "Construct a scenario where 'decline' is clearly the correct "
+        "action -- strong, unambiguous fraud indicators (e.g. a classic "
+        "card-testing pattern, impossible travel, or a brand-new account "
+        "with an immediate high-value purchase)."
+    ),
+    "escalate_l2": (
+        "Construct a scenario where 'escalate_l2' is clearly the correct "
+        "action -- genuinely ambiguous or conflicting signals that "
+        "warrant human review rather than an automated call."
+    ),
+    "request_more_info": (
+        "Construct a scenario where 'request_more_info' is clearly the "
+        "correct action -- a single missing piece of information (e.g. an "
+        "address mismatch) that would resolve the ambiguity if known."
+    ),
+}
+
+
+def weighted_generation_specs(counts: dict[str, int]) -> list[GenerationSpec]:
+    """Generalizes `default_generation_specs` with an explicit per-action
+    count, cycling through the required diversity categories within each
+    action -- lets a caller deliberately over-represent specific action
+    classes (e.g. decline/escalate_l2 for a specialization pool meant to
+    close a class-specific blind spot) while still covering every
+    diversity category. Keys in `counts` must be valid Action values."""
+    categories = list(DEFAULT_CATEGORY_GUIDANCE.items())
+    specs = []
+    for action, count in counts.items():
+        action_guidance = ACTION_GUIDANCE[action]
+        for i in range(count):
+            category, category_guidance = categories[i % len(categories)]
+            specs.append(
+                GenerationSpec(
+                    diversity_tags=(category,),
+                    guidance=f"{action_guidance} Additionally: {category_guidance}",
+                )
+            )
+    return specs
+
+
 @dataclass(frozen=True)
 class GeneratedExample:
     """A rubric-passing example paired with the teacher metadata that
@@ -134,10 +181,15 @@ def generate_batch(
     )
 
 
-def write_generated_batch(result: BatchGenerationResult, output_path: Path) -> Path:
+def write_examples_jsonl(generated: list[GeneratedExample], output_path: Path) -> Path:
+    """Shared writer: one JSON record per example, teacher metadata attached
+    to every line -- provenance travels with the data, not stored
+    separately. Used for both a raw generate-data batch and any
+    downstream-filtered subset of one (e.g. a specialization pool with
+    eval-set overlaps removed)."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w") as f:
-        for item in result.generated:
+        for item in generated:
             record = {
                 "scenario": item.example.scenario,
                 "recommendation_json": item.example.recommendation_json,
@@ -150,3 +202,7 @@ def write_generated_batch(result: BatchGenerationResult, output_path: Path) -> P
             }
             f.write(json.dumps(record) + "\n")
     return output_path
+
+
+def write_generated_batch(result: BatchGenerationResult, output_path: Path) -> Path:
+    return write_examples_jsonl(list(result.generated), output_path)
