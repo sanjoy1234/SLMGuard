@@ -1,0 +1,1001 @@
+{
+  "version": "phase1-v1-teacher-generated",
+  "cases": [
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account holder has a 3-year tenure with an average of 15 transactions per month, typically ranging from $10 to $50, and no prior fraud flags. The current event is a $42.00 card-present (chip) purchase at GreenMart Grocery occurring at 10:15\u202fAM on a Tuesday, which aligns with the customer\u2019s usual shopping pattern and merchant type.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Customer ID CUST-5678 \u2013 checking account, tenure 5 years, ~15 transactions per month, no prior fraud flags. Event: $42.50 card-present purchase at a supermarket (grocery) at 10:15 AM local time. Channel: card-present (chip).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account details: checking account, tenure 3 years, average monthly transaction frequency ~12, no prior fraud flags. Event: $4,950 purchase at a home\u2011improvement retail merchant (category: home goods) occurring on 2025-09-24 at 10:15\u202fAM, channel: card\u2011present (chip).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-5678",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-5678; account: checking account opened 18 months ago, average 8 transactions/month, no prior fraud flags; event: amount $2,500.00, merchant type electronics store, timing Tuesday 2:03 PM, channel card-present (contactless); additional context: transaction equals the account's daily purchase limit, first electronics purchase in 6 months, transaction count today is 3 versus usual 0-1.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0012",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0012. Account: checking ACC-98765, opened 24 months ago, average 6 transactions per week, no prior fraud flags. Event: $38.50 purchase at 'GreenMart Grocery' (grocery store) on 2025-09-24 at 14:32 local time. Channel: card-present (chip) at physical store.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0423 triggered for account ending in 1234 with 3-year tenure, average 2-3 transactions per week, no prior flags. Transaction: $1,950 at a supermarket (card-present) on Tuesday at 10:15 AM.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account tenure: 2 years; average transaction frequency: 5 per week; prior flags: none. Event: $42.50 purchase at a grocery store (merchant type: supermarket) at 10:15 AM on a Tuesday; channel: card-present (POS terminal).\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Account ending in 1234 (checking) opened 3.2 years ago, average 12 debit card transactions per month, no prior fraud flags. Event: $27.50 purchase at 'GreenGrocer Supermarket' on Tuesday 10:14 AM local time, card-present at store location matching usual shopping area. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account: long-tenure personal checking, opened 5 years ago, average monthly transaction count 12, no prior flags; event: $42.50 purchase at grocery store 'FreshMart' via card-present swipe at 10:15 AM on a weekday; channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0234: Account ending in 1234, held for 3 years, average monthly spend $1,200, 15 transactions per month, no prior fraud flags. Transaction: $4,850 at a home\u2011improvement retailer (card\u2011present) on a weekday afternoon. The amount is just below the $5,000 threshold that triggers secondary review. No velocity anomalies; location matches cardholder\u2019s usual shopping area.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account tenure: 3 years; average transaction frequency: 15 per month; prior flags: none. Event: $45.20 purchase at grocery merchant FreshMart, timestamp: 2025-09-24 10:12 AM, channel: card-present (POS terminal).\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account holder has a 3-year tenure with average monthly transaction frequency of 12 card-present purchases, primarily at grocery stores and gas stations. No prior fraud flags. Current event: $42.75 card-present purchase at 'FreshMart Grocery' on 2025-09-24 at 10:12 AM local time, matching typical spend pattern and merchant category.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, opened 5 years ago, average 15 transactions/month (~$200 avg), no prior fraud flags. Event: $45.00 purchase at a grocery store (supermarket) conducted at 10:15 AM local time, card-present (chip) transaction. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID SYN-1234: Card ending in 4321, held for 3 years, average 15 transactions/month, no prior fraud flags. Transaction: $2,495 at a home\u2011improvement hardware store (card\u2011present) on a weekday at 10:30\u202fAM in the cardholder\u2019s usual shopping district. The amount is near the customer\u2019s historical high\u2011end spend but within their established pattern (average $1,800, prior max $3,000). No velocity spikes, device recognized, location consistent.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account held for 3 years, average transaction $45, ~2 transactions per week, no prior fraud flags. Event: $52 card-present purchase at a grocery store (merchant type: supermarket) on Tuesday at 10:15 AM local time. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account ending in 4321, customer tenure 3 years, average 12 transactions per month, no prior fraud flags. Transaction: $42.50 at Greenfield Grocery Store (supermarket) via card-present POS terminal at 10:15 AM on a weekday, matching the customer's typical small grocery purchases under $50.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Account holder has a personal checking account opened 5 years ago, average 28 debit card transactions per month, no prior fraud flags. Alert triggered for a $47.50 card-present purchase at 'Greenfield Grocery' on a Tuesday at 14:30 local time. Channel: card-present (POS).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0578",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0578: Account holder has maintained a checking account for 4 years with an average of 25 transactions per month and an average transaction size of $120. No prior fraud flags or disputes. The alert triggers on a card-present purchase of $2,050 at a national home\u2011improvement retailer (Merchant Type: Home Improvement Store) occurring on a Saturday at 10:15 AM. The amount is just above the $2,000 near\u2011threshold monitoring limit, but the customer has made two similar purchases (>$1,800) at the same merchant chain in the past 12 months, and the merchant\u2019s fraud rate is historically low.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: checking account opened 36 months ago, average monthly transaction count 12, average spend $1,480, no prior fraud flags. Event: $45.00 purchase at 'Greenfield Grocery' (supermarket, merchant category code 5411) on 2025-09-20 at 14:12 local time, card-present (chip) transaction. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account held for 2 years with average 5 transactions per month, no prior fraud flags. Event: $45.00 card-present purchase at a grocery merchant on Tuesday at 10:12\u202fAM. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account: checking account opened 5 years ago, average 12 transactions per month, average amount $45, no prior flags. Event: $38 purchase at a supermarket (merchant type: grocery) on Tuesday at 10:15 AM, card\u2011present (chip) transaction. Channel: card\u2011present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account tenure: 3 years. Average transaction frequency: ~15 per month. Typical transaction amount: $45. Prior flags: none. Event: $50 purchase at a grocery store (card-present, chip) at 10:15 AM on a Tuesday, in the cardholder's usual city. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account holder: tenure 2.8 years, average 6 transactions per week, no prior flags. Event: $42.50 purchase at an online bookstore (card-not-present) on Tuesday at 14:32 local time. Channel: card-not-present/online.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Long-tenure (5 years) personal checking account with average monthly transaction volume of ~12 transactions and no prior flags. Event: $45.27 purchase at 'Greenway Grocery' (grocery store) via card-present terminal at 14:03 on a Tuesday. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Account ending in 1234 (tenure 3.2 years, avg 12 transactions/month, no prior flags) shows a card-present purchase of $4,950 at 'TechHub Electronics' on 2025-09-26 14:03 UTC. The amount is just below the $5,000 threshold that triggers heightened review for new merchant categories, but the customer has made similar electronics purchases averaging $4,800 over the past six months at the same merchant chain. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Visa debit card ending in 1234 (3\u2011year tenure, ~12 txns/mo, no prior flags) saw a $45.67 card\u2011present purchase at 'Greenfield Grocers' at 10:15\u202fAM on a Tuesday, consistent with the holder\u2019s usual grocery spending pattern.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: checking account #****1234, tenure 4 years, average monthly transaction count 12, no prior flags. Event: $42.50 purchase at Merchant Type: Grocery Store (card-present) on 2025-09-24 10:15 AM. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0423. Account tenure: 3 years. Average monthly spend: $1,200. Transaction frequency: ~15 per month. Prior fraud flags: none. Event: $2,450 purchase at a home-improvement retail store (merchant type: hardware). Timing: 10:15 AM on a weekday. Channel: card-present (chip).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account: checking account opened 3 years ago, average 12 transactions/month, avg amount $45, no prior flags; event: $50 purchase at grocery store (card-present) at 10:15 AM on a Tuesday; channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234. Account: checking account opened 3 years ago, average 12 debit card transactions per month, no prior fraud flags. Event: $42.75 purchase at Greenfield Grocery Store (card-present) on Tuesday at 10:15 AM local time. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, 5-year tenure, ~12 transactions/month, avg $45, primarily grocery and gas, no prior flags. Event: $38.27 card-present purchase at FreshMart Grocery (supermarket) on 2025-09-24 10:15 AM. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0423: Account holder with 3-year tenure, average 10-15 monthly transactions, typical spend $30-$200, no prior alerts. Transaction: $1,048 at 'HomeGoods Store' (retail) via card-present at 10:12 AM on a weekday. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account: 3-year tenure, ~12 transactions/month, average $45, no prior flags; event: $50 purchase at grocery store (card-present) at 10:15 AM on a weekday; channel: card-present\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account holder has maintained the card for 3 years with an average of ~15 transactions per month and no prior fraud flags. The event is a $42.50 card-present purchase at a suburban grocery store conducted at 10:12 AM on a Tuesday, consistent with the cardholder\u2019s typical spending pattern and timing.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, tenure 5 years, average monthly transactions ~30, average transaction size $45, no prior flags. Event: $48.20 card-present purchase at a supermarket (grocery store) at 10:15 AM on a Tuesday. Channel: card-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234; Account: checking account, tenure 3 years, average 15 transactions/month, no prior flags; Event: $1,950 card-present purchase at supermarket (grocery) on a weekday at 10:15 AM; Channel: card-present\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Credit card ending in 1234, account tenure 24 months, ~8 transactions/week, average spend $20-$60, no prior flags. Event: $42.50 purchase at an online grocery store (card-not-present) on Wednesday at 10:15 AM.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nScenario: Alert SYN-0427 triggered for account ending in 8392, a personal checking account held for 7 years with average monthly transaction count of 12 and no prior fraud flags. The alert corresponds to a card-present purchase of $87.50 at a grocery store (SuperMart) occurring at 10:14 AM on a weekday, consistent with the customer's typical shopping pattern and location. No velocity or geographic anomalies detected.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account: checking, opened 3 years ago, ~15 transactions/month, no prior fraud flags; event: $4,950 card-present chip purchase at a home\u2011improvement retailer (merchant type: retail home goods) on Tuesday 14:30; channel: card\u2011present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account holder has a checking account opened 36 months ago with an average of 5 debit card transactions per week and no prior fraud flags. The transaction is a card-present purchase of $42.50 at a supermarket (grocery store) occurring at 10:15 AM on a Tuesday. No unusual timing or merchant category.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "approve",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Checking account ending in 1234 (2\u2011year tenure, ~15 transactions per month, average purchase $50\u2011$200). No prior alerts. Transaction: $75.00 at Grocery Store (card\u2011present) on 2025-09-24 10:15 EST. This aligns with the customer\u2019s routine low\u2011value grocery purchases in the morning.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: A checking account opened 1 day ago (no prior transaction history) received a debit card issued yesterday. At 02:13 UTC, a $0.99 card\u2011not\u2011present purchase was attempted at an online digital\u2011goods merchant (merchant category 5734). Approximately 30 minutes later, at 02:45 UTC, a $9,800 outgoing wire transfer was initiated to a beneficiary in a high\u2011risk jurisdiction (country code XZ). The account shows no legitimate activity pattern and the rapid succession of a micro\u2011test followed by a large wire is indicative of card\u2011testing and fraud.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account details: brand-new checking account opened 0 days ago, no prior transaction history, no prior flags. Event: $2,499.99 purchase at online electronics merchant 'TechGadgets Online' at 02:14 AM UTC, preceded by three failed authorization attempts of $0.01, $0.50, and $1.00 within the last 5 minutes. Channel: card-not-present (e-commerce).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Newly issued Visa debit card (account opened 2 days ago, zero prior transactions, no prior flags). Cardholder attempts a $2,499.99 purchase at an online electronics retailer (electronics merchant category) at 03:17 UTC. Transaction is card-not-present (e\u2011commerce). No AVS match, CVV mismatch, and IP address geolocated to a country different from card billing address.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account opened today (0 days tenure), no prior transactions, no prior flags. Event: $5,200 purchase at online electronics retailer (card-not-present) occurring within 5 minutes of account creation. Billing address in New York, USA; transaction IP geolocated to Lagos, Nigeria. No prior history.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Brand-new personal checking account opened 2 days ago, zero prior transaction history, no previous flags. At 02:17 AM local time, a card-not-present purchase of $4,995 was attempted at an online electronics retailer. Preceding this, three $1.00 authorizations were made within the last 5 minutes from the same IP address and device fingerprint, consistent with a card\u2011testing pattern. The transaction occurs far outside the typical business hours for the merchant and represents the first and only activity on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A newly opened checking account (tenure 0 days, no prior transactions) with a linked debit card attempts a $2,499 purchase at an online electronics merchant (card-not-present) at 03:14 AM local time. The card has never been used before, and there are no prior flags on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account opened 0 days ago, no prior transactions. Today at 14:03 UTC, a card-not-present purchase of $2,500 USD at an online electronics retailer (merchant category code 5732). The transaction IP geolocates to a different country than the billing address, and the device fingerprint shows no prior history. No prior flags on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Newly opened checking account (0 days tenure) with a debit card issued same day, no prior transaction history or flags. At 03:17 AM, a $2,450 wire transfer is initiated via online banking to a beneficiary in a high\u2011risk jurisdiction. Within 8 minutes, a $1,200 card\u2011not\u2011present purchase is made at an electronics retailer. No legitimate activity precedes these events.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: New checking account opened today (0 days tenure), no prior transaction history, no prior flags. Event: $3,250 purchase at an online luxury watch merchant (card-not-present) occurring at 02:14 AM local time, IP address from a high-risk country, device fingerprint never seen before. Channel: card-not-present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: New checking account opened 0 days ago, no prior transactions, no prior flags. Event: $9,800 card-not-present purchase at an online electronics retailer at 02:15 UTC. Channel: card-not-present (e-commerce). Additional indicators: IP address located in a high-risk country, shipping address differs from billing address, device fingerprint unseen before, and this is the first and only transaction on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account opened 0 days ago (brand\u2011new), no prior transactions, no prior flags. Event: $2,450 purchase at an online electronics retailer (card\u2011not\u2011present) at 02:17\u202fUTC, shipping address in a different country than the IP geolocation (IP from US, shipping to Nigeria). No prior activity on the card.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account: newly opened personal checking account (opened 2 days ago), zero prior transactions, no historical flags. Event: two sequential card-not-present transactions: first, a $0.50 authorization at 'TestStore Online' at 01:45 UTC; second, a $2,499 purchase at 'ElectronicsHub' (fictional electronics retailer) at 02:13 UTC from an IP address located in a different country than the billing address, using a newly registered device. Channel: card-not-present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-5678",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-5678: Brand-new checking account opened 1 day ago with no prior transaction history. Within the first hour of account activation, three small authorization attempts ($0.50, $1.00, $2.00) were made to an online gaming site, followed by a $5,200 purchase at an overseas electronics retailer (merchant category: Consumer Electronics). The transaction was card-not-present, initiated at 02:13 AM UTC from an IP address located in a different country than the account holder's billing address. The account shows no regular transaction frequency and has never been used for legitimate purchases before.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: New checking account opened 0 days ago; first transaction is a card-not-present purchase of $9,950 at an online electronics retailer at 02:30 AM local time. The transaction originates from an IP address in a different country than the account holder\u2019s registered address, indicating impossible travel. No prior flags or transaction history exist.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: New credit card opened 1 day ago, no prior transactions. Transaction: $3,000 card-not-present purchase at an online luxury watch retailer at 02:45 UTC, followed by two $0.01 authorization attempts at different gaming sites within 2 minutes. IP location jumps from New York, US to Moscow, Russia within 90 seconds (impossible travel). Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: New retail checking account opened 2 days ago (tenure: 2 days), zero prior transactions, no historical flags. At 02:17 AM, an ACH credit of $9,800 was attempted to an external account never used before, preceded 10 minutes earlier by a $0.01 test ACH to the same destination. Channel: ACH transfer.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0572",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0572. Account: newly opened checking account linked to a Visa debit card, account age 0 days, no prior transactions, no prior fraud flags. Event: $2,499.99 purchase at an online electronics retailer (merchant category: Electronics) occurring 3 minutes after account activation, shipping to a different country than the billing address. Channel: card-not-present (e-commerce). Additional context: IP address located in a high\u2011risk jurisdiction, device fingerprint shows no prior history.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account opened 2 days ago (tenure ~0.06 months), zero prior transactions, no previous flags. Event: $2,499.99 purchase at an online electronics retailer (merchant type: Electronics e\u2011commerce) at 02:14 AM local time, channel: card\u2011not\u2011present (e\u2011commerce). No prior alerts.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Account opened 12 hours ago (tenure 0.5 days), no prior transaction history, no prior flags. Event: CNP purchase of $5,200 at an online electronics retailer occurring at 03:14 UTC, preceded by three $0.50 authorization attempts at the same merchant within the last 5 minutes. No prior flags. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A checking account opened 2 days ago with no prior transaction history. At 02:17 UTC, a card-not-present purchase of $9,800 was attempted at an online electronics merchant. The billing address is in New York, USA, but the shipping address is Lagos, Nigeria. The transaction originated from a newly seen device and an IP address located in a high\u2011risk jurisdiction. No prior flags exist on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account opened 0 days ago (new customer) with no prior transactions. Tenure: 0 days, prior transaction frequency: 0, prior flags: none. Event: Three $0.99 authorization attempts at 02:13, 02:17, and 02:21 UTC on an online gaming site, followed immediately by a $2,499.99 purchase at a high-end electronics retailer at 02:25 UTC. Channel: card-not-present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account details: newly issued debit card, account opened 2 days ago, zero prior transaction history, no previous flags. Event: within a 5\u2011minute window, two card\u2011not\u2011present transactions occurred: first a $0.99 purchase at an online digital\u2011goods merchant (typical test amount), followed by a $2,495 purchase at a high\u2011end electronics retailer. Both transactions originated from an IP address located in a different country than the cardholder\u2019s billing address, and the device fingerprint shows a new device. Channel: card\u2011not\u2011present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID SYN-1234. Account: brand\u2011new checking account opened 2 days ago, with zero prior transactions and no previous fraud flags. Event: a single $2,500 purchase at an online electronics retailer occurring at 02:13\u202fAM local time, processed as a card\u2011not\u2011present (e\u2011commerce) transaction. No other activity on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0274",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0274: A newly opened checking account (0 days old) with no prior transaction history attempts a $4,950 card-not-present purchase at an online electronics retailer at 02:13 AM. The card has been used for three $1 authorization attempts within the past five minutes at the same merchant, indicative of card\u2011testing. No prior flags exist on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account tenure: 2 days (opened 2025-09-18), no prior transactions, zero prior flags; event: amount $2,499.99, merchant type: online electronics retailer, timing: 03:14 AM UTC, channel: card-not-present (e-commerce); additional indicators: billing address in New York, shipping to a different state, first-time purchase.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: A brand\u2011new credit card (opened today, zero prior transactions) was used for a $0.99 authorization at an online streaming service at 10:02 UTC, followed five minutes later by a $2,499 purchase from an overseas electronics retailer at 10:07 UTC. Both transactions were card\u2011not\u2011present (online). The second transaction originated from an IP address located in a different country than the billing address and the cardholder\u2019s typical location (impossible travel). No prior flags exist on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0427: Account opened 2 days ago (tenure: 2 days), no prior transactions, no previous flags. Customer profile: individual, no historical spending. Event: at 02:13 UTC, a card-not-present purchase of $2,499.99 at an online electronics retailer (merchant category code 5732). Prior to this, three $0.00 authorization attempts occurred within the last 5 minutes from different IP addresses located in New York, NY and then London, UK. The shipping address differs from billing address and is a freight forwarder in Miami, FL. Channel: card-not-present (e-commerce).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1834",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1834: Credit card account active for 60 days with ~2 transactions per week averaging $35, no prior flags. Card-not-present transaction of $1,150 at an online travel agency at 20:05 local time.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0001",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-0001; account details: newly opened credit card (opened 1 day ago), zero prior transactions, no previous fraud flags; event sequence: at 02:25 UTC a $0.49 card-not-present charge attempted at an online gambling site (merchant category: gambling), followed at 02:30 UTC by a $4,800 wire transfer initiated via online banking to a beneficiary account located in a high-risk jurisdiction; channel: first transaction card-not-present (online), second transaction wire transfer.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Brand-new checking account opened 0 hours ago linked to Visa debit card ending 4242. No prior transaction history. First attempted purchase: $5,200 at online electronics merchant 'TechGadgets.com' (card-not-present) at 02:15 UTC. Billing address: New York, NY, USA. IP geolocation: Moscow, Russia. Prior to this, three $0.50 authorization attempts within the last 5 minutes from same card number. No prior flags on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: New checking account opened 2 days ago, no prior transactions, tenure 2 days, transaction frequency 0. Event: first transaction of $9,800 at an online electronics merchant (card-not-present) at 03:12 UTC. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Newly opened debit card (account age 0 days, no prior transaction history) used for a $2,499 electronics purchase at an online retailer (card\u2011not\u2011present) at 03:17 UTC. The IP address geolocates to Lagos, Nigeria while the cardholder\u2019s registered address is in New York, USA. No prior flags or velocity alerts exist for this account.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: New Visa debit card issued today (account tenure 0 days, no prior transactions, no prior flags). Within a 7\u2011minute window at 01:58\u201102:05\u202fAM, the card was used for two $0.00 authorization attempts on an overseas gaming merchant (card\u2011not\u2011present), followed immediately by a $3,200 purchase at a luxury electronics retailer (card\u2011not\u2011present). No legitimate activity history; pattern matches classic card\u2011testing fraud.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Brand-new checking account opened 0.5 days ago with no prior transaction history. Within 10 minutes of account creation, a card-not-present purchase of $2,499.99 is attempted at an online electronics retailer (merchant category code 5732). The transaction originates from an IP address located in a different country than the account's billing address, and the cardholder has not performed any other activity. No prior flags exist on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account details: newly issued credit card (opened 6 hours ago), zero prior transactions, account tenure 0 days, no prior fraud flags. Event: $9,800 card-not-present purchase at an online electronics retailer at 02:17 UTC; shipping address differs from billing address; IP location indicates a country different from the card-issuing region; device fingerprint shows no prior usage. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Brand\u2011new credit card account opened today (0\u2011day tenure), no prior transactions or flags. At 02:13\u202fUTC a card\u2011not\u2011present purchase of USD\u202f2,500 was made at an online electronics retailer. The shipping address is in a different country than the billing address, and the IP address originates from a third country, indicating impossible travel. No previous card\u2011present activity.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account details: newly opened checking account (opened today, 0 days tenure), no prior transaction history, no prior flags; event: two rapid successive card-not-present online transactions: first a $0.99 authorization test at an online gaming merchant (timestamp 2025-09-24 10:02:13 UTC), followed 4 minutes later by a $2,499.99 purchase at a high\u2011end electronics retailer (timestamp 2025-09-24 10:06:07 UTC); channel: card\u2011not\u2011present (online)\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0572",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-0572; account profile: brand-new checking account opened 12 hours ago, no prior transactions, low frequency; event: $3,200 wire transfer to an overseas entity at 02:45 AM local time; channel: wire; additional context: the recipient country is high-risk for fraud, and the sender device shows a new IP address from a different continent than the account holder's registered address.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account details: newly issued credit card, opened 2 days ago, no prior transactions, tenure 2 days, transaction frequency 0, no prior flags. Event: $9,750 purchase at an online electronics retailer (card-not-present) at 03:14 AM UTC. Channel: card-not-present. Additional indicators: shipping address differs from billing address, IP address located in a high-risk fraud jurisdiction, and three authorization attempts within the last minute.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0427: New checking account opened 1 day ago, no prior transactions or alerts. Card-not-present purchase of $3,200 at an online electronics retailer at 02:17 AM UTC. Shipping address in Nigeria, billing address in the United States. 3D Secure authentication succeeded. No prior flags.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "decline",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account opened 2 days ago, newly issued debit card with zero prior transaction history. At 03:12 UTC a $0.99 card-present charge was attempted at a local gas station (merchant type: fuel). Five minutes later, at 03:17 UTC a $2,500 card-not-present purchase was attempted at an online electronics retailer (merchant type: consumer electronics). The rapid succession of a low-value test followed by a high-value purchase, combined with the brand\u2011new account and unusual early\u2011morning timing, indicates classic card\u2011testing fraud.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account ending in 4321 (checking), opened 36 months ago, typical activity ~2 transactions/week, no prior fraud flags. Event: Within a 12\u2011minute window at 02:10\u202fAM local time, a $1.00 authorization attempt at an online streaming service (card\u2011not\u2011present) was immediately followed by a $2,450 purchase at an overseas electronics retailer (card\u2011not\u2011present). Channel: card\u2011not\u2011present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: A personal checking account held for 3 years with an average of 2 transactions per week and a prior low-value ACH flag in January 2023. The account now shows a card-not-present purchase of $2,450 from an online electronics retailer at 02:17 AM local time. The transaction amount is roughly three times the customer's typical spend, but the device fingerprint matches a known trusted device used frequently over the past six months and the IP address originates from the customer's home ISP. No velocity spikes or multiple rapid attempts are observed.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0423. Account: credit card, opened 12 months ago, average transaction $45, ~3 transactions per week, no prior fraud flags. Event: $1,950 purchase at an online electronics retailer at 02:13 AM, channel: card-not-present. The amount is just below the $2,000 high\u2011value threshold, the timing is unusual for this cardholder, and the merchant category is new for the account, creating conflicting signals that merit human review.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Card ending in 4321, account opened 14 months ago, average 3 transactions/week, no prior flags. Transaction: $2,450 purchase at an online electronics retailer (card-not-present) at 02:17 AM local time. The merchant is newly added to the whitelist (first-time appearance). The cardholder's typical spend is under $200 and transactions usually occur between 9 AM-7 PM. No recent international travel noted.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0427: Customer has held a checking account for 2 years with ~15 transactions per month and no prior alerts. At 02:13 AM an online banking wire transfer of $2,450 was sent to an overseas beneficiary in a high-risk country. Minutes later a $19.99 card-not-present purchase was made at an overseas streaming service. The customer has no history of wire transfers or overseas purchases.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0427: Account holder Jane Doe (fictional) has a checking account opened 5 years ago with low transaction frequency (average 2 purchases per week, total monthly volume <$500). No prior fraud flags. The alert triggers on a card-not-present purchase of $2,350 at an overseas electronics retailer occurring at 02:15 AM local time. The transaction used the cardholder's usual device and IP address, and the billing/shipping address matches the account's registered address. Recent similar high\u2011amount purchases were not observed in the past 6 months.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0423. Account: Visa credit card, opened 3 years ago, average monthly transaction frequency 12, typical spend $20\u2013$150, no prior fraud alerts, excellent payment history. Event: $1,950 purchase at an online electronics retailer (card\u2011not\u2011present) at 02:15\u202fAM local time. Shipping address differs from billing address but remains within the same state; IP geolocation matches the cardholder\u2019s usual location and device fingerprint is recognized. Channel: card\u2011not\u2011present (e\u2011commerce).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-0427; account: checking account opened 36 months ago, avg 12 tx/month, no prior fraud flags; event: $2,450 card-not-present purchase at an online electronics merchant at 02:13 AM; channel: card-not-present; additional context: device fingerprint matches user's usual device, but IP originates from a high\u2011risk jurisdiction; transaction amount is 2.5\u00d7 the user's 90th\u2011percentile spend; a $10 test transaction to the same merchant occurred 2 hours earlier.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: debit card linked to checking, tenure 24 months, avg 3 txns/week, prior flag: one low\u2011risk foreign transaction 6 months ago resolved. Event: first a $1.99 test charge at an online gaming merchant (card\u2011not\u2011present) at 02:13 AM, followed by a $2,450 purchase at a high\u2011end electronics store (card\u2011present) at 02:45 AM same day. Channel: mixed sequence (card\u2011not\u2011present then card\u2011present).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234\\nAccount: Checking account #XXXX1234, tenure 5 years, average 12 transactions/month, no prior fraud flags, low-risk profile.\\nEvent: $2,450 purchase at online electronics retailer (MCC 5732) at 02:13 AM, card-not-present. Earlier today same cardholder made a $45 purchase at same retailer at 10:45 AM.\\nChannel: Card-not-present (e-commerce).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: 3-year tenure, average transaction $45, ~2 per week, no prior flags. Event: $9,800 card-not-present purchase at an overseas luxury goods merchant at 03:12 AM local time. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-5678",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-5678. Account tenure: 14 months. Average monthly transaction frequency: 5 transactions, typical spend range $50-$200. No prior fraud flags. Event: Card-not-present purchase of $2,450 at an online electronics merchant, timestamp 02:13 AM local time. Shipping address differs from billing address; device fingerprint is new for this card. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account opened 18 months ago, avg 12 tx/mo, no prior flags. Today at 09:12 ET a $0.99 card-not-present purchase from an online gaming merchant (digital goods) was authorized. Approximately 2 hours later at 11:45 ET a $9,800 wire transfer was initiated via the mobile banking app to a newly added overseas business services beneficiary. The wire amount is >30x the account's typical transaction size and the beneficiary has no prior relationship. However, the wire was authenticated with biometric login and the device was recognized as trusted; the small test charge was also approved and no velocity alerts triggered.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account held for 2 years with average monthly transaction count of 3 (mostly <$200 groceries and gas), no prior fraud flags. Transaction: $9,500 card-not-present purchase at an online electronics merchant at 02:17 AM local time, shipping address differs from billing address, IP located in a different country. The amount is just below the $10,000 high-value threshold, but the customer's long tenure and clean history suggest low inherent risk.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account tenure: 24 months. Average transaction frequency: 5 per month. Prior flags: none. Event: $2,450 purchase at an online electronics retailer at 02:13 AM local time. Channel: card-not-present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0427: Checking account (tenure 3 years, avg 12 tx/mo, low risk, one prior flag cleared 8 months ago). Event: $2,450 card-not-present purchase at overseas electronics merchant at 02:13 AM; amount 3x typical max; IP from unfamiliar country but shipping address matches home; device fingerprint matches known legitimate device. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, tenure 24 months, average 15 transactions/month, no prior fraud flags. Event: $4,950 purchase at an online electronics retailer (card-not-present) at 02:13 AM local time. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Visa credit card ending in 4321, account tenure 24 months, average transaction frequency 2 per week, no prior fraud flags. Event: $1,150 purchase at an online electronics retailer (merchant type: electronics e\u2011commerce) occurring at 02:17 AM local time, channel: card\u2011not\u2011present. The shipping address is a different state than the billing address, but the IP address and device fingerprint match the customer\u2019s usual pattern. The customer recently returned from a two\u2011week international trip and made several small purchases abroad; a password reset was requested 12 hours prior to this transaction.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-0423; account tenure: 2 years; avg txn frequency: 3/week; prior flags: none; recent new mobile device added 1 day ago; event: first, a $0.99 card\u2011not\u2011present test charge at an online grocery merchant at 02:13\u202fAM; followed 32 minutes later by a $2,450 card\u2011present purchase at a high\u2011end electronics retailer at 02:45\u202fAM same day; channel: mixed (card\u2011not\u2011present then card\u2011present).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account: checking account, tenure 24 months, low transaction frequency (~2 transfers/week), previously flagged for suspicious small transfers three months ago (resolved). Event: $2,450 card-not-present purchase at an online electronics retailer at 02:13 AM local time. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account details: checking account opened 24 months ago, average of 12 transactions per month, no prior fraud flags. Event: $4,950 purchase at an online high\u2011end electronics retailer, initiated at 02:13 AM local time. Channel: card\u2011not\u2011present (e\u2011commerce).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Card ending in 4321, account tenure 24 months, avg 3 txns/week, no prior fraud flags. Transaction: $2,450.00 at an online electronics retailer at 02:15 AM local time, card-not-present. Device fingerprint shows a new laptop not seen before, but IP address matches the cardholder's usual city. This is the second transaction today after a $12.00 grocery purchase at 01:50 AM. The cardholder updated their email address 18 hours ago; phone number remains verified. Risk indicators are mixed: amount just below the $2,500 high\u2011risk threshold, unusual hour, new device, and recent profile change, yet location and low\u2011value predecessor suggest legitimacy.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Visa debit card ending in 4321, account tenure 36 months, average 12 transactions/month, no prior fraud flags. Within a 5\u2011minute window, two card\u2011not\u2011present online transactions occurred: a $0.99 authorization at 'StreamFlix' (test charge) followed by a $2,450 purchase at 'TechGiant Electronics'. Both originated an IP address in the cardholder\u2019s home city, but the device fingerprint was unseen before and the shipping address differed from the billing address. The rapid velocity increase combined with a small test charge and address mismatch creates conflicting risk signals.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Business checking account (opened 2 years ago, high-volume merchant services, average 150 transactions/day, no prior fraud flags). At 02:17 AM local time, a $9,850 ACH credit was initiated to an overseas vendor categorized as 'electronics wholesaler' \u2013 a merchant type not previously seen on this account. The transaction originated from a new IP address and device fingerprint, while the account's usual ACH activity is domestic payroll under $2,000. No velocity limits were exceeded, but the timing, amount, and foreign destination deviate from the established pattern.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A card-not-present transaction of $2,450.00 attempted at 02:28 UTC on 2025-09-24 from an overseas electronics retailer (Merchant ID: ELEC-OVRS-01). The primary account holder has held the card for 5 years, averaging 12 transactions per month with no prior fraud flags. The transaction amount is just below the $2,500 auto-decline threshold, but the merchant is new to the account, the transaction occurs outside typical usage hours, and the device fingerprint is unseen before, though the IP address geolocation matches the cardholder's usual city.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Visa debit card ending in 4321, account tenure 24 months, average 4-6 transactions/month, no prior fraud flags. Transaction: $1,200.00 at overseas electronics merchant (online), timestamp 02:13 AM local time, card-not-present channel. No recent velocity spikes, typical low-value grocery purchases prior.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0423: Customer account (checking) opened 24 months ago, average transaction frequency ~3 per week, primarily card-present retail purchases <$100, no prior fraud flags. Alert triggered by two rapid events: (1) a $0.99 card-not-present authorization at an online gaming merchant at 14:03 UTC, followed 117 seconds later by (2) a $2,450 outgoing wire transfer to a bank in a high\u2011risk jurisdiction at 14:05 UTC. The wire is the customer\u2019s first ever wire transaction; historically they have not used wires or high\u2011value online purchases. The small test charge is typical of card\u2011testing fraud, yet the wire could be a legitimate urgent payment the customer never previously made.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Customer Jane Doe, personal checking account opened 5 years ago, average transaction frequency ~3 per week, no prior fraud flags. On 2025-09-24 at 02:15 AM, a card-not-present purchase of $89.99 was attempted at an online electronics retailer categorized as high-risk for card-testing. The transaction originated from an IP address located in a different country than the cardholder\u2019s usual residence, and the device fingerprint does not match any of the customer\u2019s known devices. Additionally, the account recorded a failed login attempt from a new location two hours prior to the transaction.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account: checking account tenure 8 months, average 3 transactions per week, no prior flags. Event: $2,450 card-not-present purchase at an online electronics retailer at 02:13 AM, shipping address matches the account's registered address, IP geo-location from a different country. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: checking account opened 24 months ago, average 15 transactions/month, no prior fraud flags; one authorized user added 7 days ago. Event: $2,499.99 card-not-present purchase at an online electronics merchant at 02:13 AM local time. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account held for 2 years with average 3 transactions/week, no prior fraud flags. Two minutes ago a $0.99 card-not-present charge at an online gaming merchant succeeded; five minutes later a $4,800 wire transfer to a new overseas beneficiary was initiated via the bank's mobile app. The wire request triggered flags for new device, unfamiliar IP, high amount, and rapid succession after a test transaction.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, opened 5 years ago, average 12 transactions/month, average transaction size $45, no prior fraud flags. Event: $2,400 purchase at 'CoinShift Crypto Exchange' (merchant category: cryptocurrency) at 02:13 AM local time, card-not-present (online) using saved card details. Device fingerprint matches known device from prior logins, IP address residential ISP in same city as account holder.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-0427: Account holder has a checking account opened 24 months ago, averages 3 transactions per week, no prior fraud flags. The alert triggers on a card\u2011not\u2011present purchase of $9,950 at an online electronics merchant occurring at 02:13 local time. The transaction originates from an IP address located in a different country than the account\u2019s usual login location, though the device fingerprint matches a previously seen device. The amount is just below the $10,000 threshold for automatic large\u2011transaction review.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account tenure 24 months, average transaction frequency 3 per week, no prior fraud flags. Event: $2,450 card-not-present purchase at an online electronics merchant at 02:17 AM local time, shipping to a different country than the billing address. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-8421",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-8421: Account ending 4839 held for 22 months, average 3-4 card-present purchases per week, no prior fraud flags. Recent activity: (1) Card-not-present online charge of $0.99 at 02:17\u202fAM from merchant 'QuickDigitalStore' (IP geolocated to Eastern Europe), (2) Card-present purchase of $2,450 at 'MetroDeptStore' three hours later using the same card at a terminal in downtown Chicago, (3) ACH outflow of $12,000 initiated at 09:05\u202fAM to a newly added beneficiary 'GlobalSupplyCo' with routing number not previously seen on the account. The ACH transaction was flagged by the new\u2011payee rule, while the card\u2011present transaction matches the user's typical spend pattern but occurs shortly after an unusual low\u2011value test charge.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, tenure 5 years, average 15 transactions/month, no prior fraud flags. Event: $2,450 card-not-present purchase at an overseas electronics merchant (high-risk category) at 03:17 AM local time. Channel: card-not-present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account held for 2 years with average monthly transaction frequency of 3 and average transaction size $45; no prior flags. Current event: card-not-present purchase of $9,800 at an online electronics merchant at 02:15 AM local time. The cardholder made a $12 grocery purchase earlier the same day, but this is the first transaction exceeding $5K on the account. Account shows no chargebacks or fraud history.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0456",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0456: Account ending in 4321, opened 22 months ago, average 3 transactions per week, no prior fraud flags. Transaction: $42.80 at an online gaming merchant (MCC 7995) occurring at 02:17 AM local time, channel card-not-present. The device fingerprint shows a new Android device not seen before, IP address from a different country than the cardholder's usual residence, and the cardholder recently returned from an overseas trip two days ago. The transaction amount is below the usual $100 threshold for automatic decline but the combination of timing, merchant type, device change, and geographic anomaly places the risk score at the escalation threshold.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Account holder (checking account, tenure 4 years, average 3 card-present purchases per week, no prior fraud flags) made a $1.00 card-not-present charge to an online streaming service at 02:13 UTC, followed 45 minutes later by a $9,800 wire transfer to a newly added beneficiary labeled 'Consulting Services LLC' at 02:58 UTC. The wire originated from the same IP address as the test charge, but the beneficiary has no prior relationship with the account. The cardholder's typical wire activity is under $500 and only to known payees.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Card ending in 4321, account tenure 24 months, average 15 transactions/month, no prior flags. Event: $2,450 purchase at an online electronics retailer (card-not-present) at 02:13 AM local time, initiated from a new device/IP located in a different country than the cardholder's usual residence. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-5832",
+      "true_action": "escalate_l2",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-5832. Account: personal checking, opened 24 months ago, average 3-4 debit card transactions per week, no prior fraud flags. Event sequence: at 09:12 UTC, a $0.99 ACH debit initiated to 'VeriFlow Services' (a verification micro-deposit platform); at 09:18 UTC, a $4,250 outgoing wire transfer to 'GlobalTech Supplies Ltd.' in Estonia, beneficiary added 10 minutes prior, with wiring instructions received via secure message from the customer. Channel: mixed sequence (ACH test followed by wire transfer).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Visa ending 4242, account open 24 months, average 4 transactions/month, no prior fraud flags. Activity: two sequential online (card-not-present) transactions \u2013 first a $0.99 test charge at DigitalGoodsStore at 09:12 UTC, followed 8 minutes later by a $2,450 purchase at ElectronicsOutlet shipping to a different address than the billing address on file. The billing address matches the account holder's records; the shipping address is a newly used location with no prior history.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: personal checking, opened 5 years ago, average 15 transactions/month, no prior flags. Event: $1,200 card-not-present purchase at an online electronics merchant at 02:15 AM. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234 triggered for a credit card ending in 4321, account tenure 14 months, average transaction frequency ~2 per week, no prior fraud flags. The event is a $2,495 purchase at an online electronics retailer (card\u2011not\u2011present) occurring at 02:13 AM local time. The billing address on file is 123 Maple St, Springfield, IL, while the order\u2019s shipping address is 456 Oak Ave, Shelbyville, IN. No other atypical behavior (e.g., velocity spikes, prior declines) is observed.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A Visa credit card ending in 4321, held for 24 months with average 3 transactions per week and no prior fraud flags, was used for a $2,350 purchase at an online electronics retailer (merchant category 5732) at 02:13 local time. The transaction is card-not-present. The shipping address provided is in Portland, OR, while the billing address on file is in Austin, TX. No velocity or device fingerprint anomalies detected.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. The account is a personal debit card linked to a checking account opened 24 months ago, with an average of 12 transactions per month and no prior fraud flags. The event is a card\u2011not\u2011present (online) purchase of $2,450 at an electronics merchant, occurring at 02:13 UTC on 2025\u201109\u201124. The billing address on file is 742 Maple St, Springfield, IL 62704, while the transaction was authorized with a shipping address of 185 Oak Ave, Shelbyville, KY 40065. No other suspicious activity is noted on the account.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Long-tenure personal checking account (5 years, avg 2 monthly transactions, no prior flags); CNP purchase of $1,250 at an online electronics merchant at 02:15 AM; billing address on file 123 Maple St, Springfield, IL vs shipping address 456 Oak Ave, Shelbyville, IN.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: debit card ending in 4321, opened 14 months ago, avg 3 txns/month, no prior flags. Event: $1,950 card-not-present purchase at an online electronics retailer (MCC 5045) at 02:13 AM UTC. Channel: card-not-present (e-commerce). Missing info: billing address on file does not match the shipping address provided.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A Visa credit card held for 2 years with an average of 3 transactions per week and no prior flags shows a card-not-present purchase of $1,200 at an overseas electronics merchant at 02:30 AM local time. The transaction triggered high amount, foreign merchant, and odd time flags. The billing address on file does not match the shipping address provided in the authorization request, but the exact address discrepancy cannot be confirmed without additional verification.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0572",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0572. Account: Visa debit card ending in 4829, held for 24 months, average 3 transactions/week (~$45 each), no prior fraud flags. Event: Card-not-present online purchase of $1,249.99 at 'TechGadgets Online' at 02:13 AM local time. Channel: card-not-present (e-commerce).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: checking account held for 4 years, average monthly transaction count 12, no prior flags. Event: $85 purchase at an online electronics merchant (card-not-present) occurring at 02:13 AM local time. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0423. Account: Visa credit card, tenure 24 months, avg 5 txns/month, no prior fraud flags. Event: $1,950 card-not-present purchase at an online electronics merchant at 02:13 AM. Channel: card-not-present. Missing info: the transaction's shipping address differs from the billing address on file, but the shipping address is not provided in the alert.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A Visa credit card held for 2 years with an average of 15 monthly transactions and no prior fraud flags shows a $2,450 purchase at an online electronics retailer at 02:17 AM local time. The transaction is card-not-present. The billing address on file ends in ZIP 90210 while the shipping address provided for the order ends in ZIP 90211, creating a single address mismatch. No other risk indicators such as velocity spikes or device anomalies are present.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account: checking account opened 3 years ago, average 2 transactions per week, no prior flags. Event: $1,245.99 purchase at an online electronics retailer (card-not-present) occurring at 02:13 AM local time. Shipping address differs from billing address on file; billing address is 123 Maple St, Springfield, IL 62704, while shipping address is 456 Oak Ave, Shelbyville, IN 46176. No prior similar high-value online purchases. Channel: card-not-present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0423. Account holder is a long-tenure (5-year) low\u2011risk personal checking customer with average 2 transactions per month and no prior fraud flags. The alert triggers on a card\u2011not\u2011present online purchase of $1,200 at an electronics e\u2011commerce merchant occurring at 02:15\u202fAM local time. The transaction\u2019s shipping address does not match the billing address on file, while the billing address matches the account\u2019s registered address. No other anomalous indicators are present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: Visa credit card ending in 4321, opened 6 months ago, average of 2 transactions per month, no prior fraud flags. Event: $1,950 purchase at an online electronics merchant at 02:15 local time, card-not-present channel. Shipping address differs from billing address on file; address verification pending.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Account tenure 2 years, avg 3 txns/week, no prior flags. Transaction: $1,200 at online electronics retailer (card-not-present) at 02:15 AM. Channel: card-not-present. Missing piece: billing address mismatch with shipping address.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Checking account opened 24 months ago, average transaction frequency ~3 per week, no prior fraud flags. Event: $1,245.99 card-not-present purchase at an online electronics retailer at 02:13 UTC. Shipping address differs from billing address on file; billing address is in Colorado, shipping to California. No prior similar transactions. Channel: card\u2011not\u2011present (online).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0423",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0423: Long-tenure (5 years) low-risk personal checking account, average 2 transactions per week, no prior flags. Card-not-present purchase of $1,200 at an overseas electronics merchant at 02:15 AM local time. The billing address on file does not match the shipping address supplied by the merchant; address verification is missing.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Customer holding a personal checking account opened 6 months ago, with an average of 2 low-value transactions per month and no prior fraud flags. A card-not-present purchase of $9,800 was attempted at 02:13 UTC from an online electronics merchant. The transaction amount is just below the $10,000 high\u2011value threshold that triggers enhanced review. The billing address on file matches the account holder\u2019s residence, but the shipping address provided for the order is a different state. No additional verification (e.g., OTP or phone call) was performed. The account\u2019s tenure and clean history suggest a legitimate customer, yet the address discrepancy and late\u2011night timing introduce uncertainty.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Checking account opened 24 months ago, average 3 transactions per week, no prior fraud flags. Transaction: $1,245.67 card-not-present purchase at online electronics merchant 'TechGadgets Inc.' at 02:13 AM local time. Channel: card-not-present. AVS check unavailable due to missing billing address in request; shipping address differs from account address on file.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A checking account (opened 24 months ago, average 3 transactions per week, no prior flags) shows two recent activities: first, a $1.00 authorization at an online retail site (card-not-present) at 09:12 UTC, followed 15 minutes later by a $1,245.99 purchase from the same site. The shipping address on file ends with '123 Main St', while the purchase attempt used a billing address ending with '456 Oak Ave'. No other anomalies detected.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234 triggered for a Visa credit card ending in 4321. The account has been open for 3 years with an average of 4 transactions per month and no prior fraud flags. The transaction is a card-not-present purchase of $2,950 at an online electronics retailer at 02:13 AM local time. The billing address on file matches the cardholder's record, but the shipping address provided differs and has not been verified. This is the first time the cardholder has used this merchant. The amount is just below the $3,000 high-value threshold, creating conflicting signals: strong account history versus a high\u2011value, atypical purchase with an unverified ship\u2011to address.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A card-not-present online purchase of $850.00 at an electronics retailer occurred at 02:13 AM. The cardholder has held the account for 2 years with an average of 3 transactions per month and no prior fraud flags. The billing address on file is 123 Maple St, Springfield, IL 62704, but the transaction supplied a shipping address of 456 Oak Ave, Shelbyville, IN 46176. No other information (e.g., order confirmation email or phone verification) is available.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: long-tenure low-risk customer, opened 5 years ago, average monthly transaction volume $2,000, no prior fraud flags. Event: $1,200 card-not-present purchase at an online electronics merchant at 02:15 AM UTC, shipping to a different state than the billing address on file. Channel: card-not-present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Account held for 24 months, average 3 transactions/month, no prior alerts. Transaction: $2,450 at an online electronics retailer at 02:13 AM, card-not-present. Billing address on file does not match shipping address provided; address verification pending.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Visa ending in 4321, account tenure 24 months, average 3 transactions/month, no prior fraud flags. Transaction: $1,200.00 at 'TechGear Online' (electronics merchant) at 02:14 UTC, channel card-not-present. The transaction amounts and timing are unusual for the cardholder's typical low\u2011value daytime purchases. The billing address could not be verified; the issuer has not received an address confirmation from the merchant.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: ACH transfer of $2,350 initiated at 02:14 AM from account ending in 8423 (3\u2011year tenure, ~5 txns/week, no prior alerts) to newly added beneficiary 'OfficeSuppliesXYZ'. The transaction occurs outside normal business hours and the beneficiary\u2019s address on file (123 Main St, Anytown, ST 12345) does not match the address supplied in the ACH file (456 Oak Ave, Somewhere, ST 67890). No other suspicious patterns observed.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Customer John Doe (fictional) holds a personal checking account opened 5 years ago with low-to-moderate activity (average weekly transaction $200, no prior fraud flags). An attempted card-not-present purchase of $1,200 at an online electronics merchant occurs at 02:30 AM. The shipping address provided differs from the billing address on file. No other suspicious indicators present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Account held for 24 months with average monthly transaction count of 12 and no prior fraud flags. A card-not-present purchase of $2,950 was made at 02:13 UTC from an online electronics merchant. The transaction amount is just below the $3,000 high\u2011value threshold and represents the first time this card has been used at this merchant. The billing address on file matches the account holder's residence, but the shipping address supplied in the authorization request has not been verified; an address mismatch could explain the atypical timing and merchant type. No other risk indicators (velocity, device reputation) are present.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Credit card ending in 1234, account tenure 2 years, average monthly transaction frequency 15, no prior fraud flags. Transaction: $2,450 at an online electronics retailer at 02:17 AM, channel card-not-present (e-commerce). The shipping address provided differs from the address on file, but the current address on file is not available in the alert, creating an address mismatch uncertainty.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Visa debit card ending in 4321, account tenure 3 years, average monthly transaction frequency 2 purchases, no prior fraud flags. Online purchase of $1,250 at an electronics retailer (MCC 5732) at 02:14 AM UTC. Billing address matches cardholder's registered address; shipping address provided during checkout is different and located in another state.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: Customer account held for 5 years with low transaction frequency (avg 2 per month), no prior fraud flags. A $2,450 purchase was made at an online electronics retailer (card-not-present) at 02:13 AM local time. The transaction was flagged due to a billing address mismatch on file.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; account: checking, tenure 18 months, average 2 transactions/week, no prior fraud flags; event: $1,250 card-not-present purchase at an online electronics retailer at 02:14 AM local time, shipping address differs from billing address on file; channel: card-not-present; missing AVS (address verification) result.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Cardholder with 2\u2011year tenure and avg 15 monthly transactions, no prior flags. A $2,450 card\u2011not\u2011present purchase at an online electronics retailer at 02:17\u202fAM local time. Shipping address differs from the billing address on file; AVS returns mismatch. No other velocity or location anomalies observed.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nSYN-1234: Visa debit card issued 3 years ago, avg 12 txns/mo, no prior flags. Card-not-present online purchase of $1,250 at TechGadgets Hub at 02:13 AM, shipping to a different state than billing address on file.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: newly opened personal checking account, 2 days old, no prior transaction history, low-risk profile with no prior flags. Event: $850 purchase at an online electronics merchant (card-not-present) occurring at 02:13 AM local time. Channel: card-not-present (e-commerce). The billing address supplied does not match the address on file for the account, and the shipping address differs from both.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-0427: Card ending in 3421, account tenure 3 years, average 5 transactions per month, no prior fraud flags. Transaction: $2,450 at an online electronics merchant (card-not-present) occurring at 02:17 AM. Channel: card-not-present. The transaction triggers a near\u2011threshold high\u2011value alert and occurs outside typical business hours. The billing address on file does not match the shipping address provided; address verification is pending.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nalert_id: SYN-1234; card/account details: tenure 2 years, avg monthly transactions 15, no prior flags; event: amount $2,345.00, merchant type: online electronics retailer, timing: 02:13 AM local time, channel: card-not-present (e-commerce); missing info: billing address vs shipping address mismatch suspected.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. The account is a personal checking account opened three years ago with an average of 12 transactions per month, primarily low\u2011value grocery and utility purchases, and no prior fraud flags. At 02:14 AM local time, the customer initiated a $1,850 wire transfer via online banking to an overseas beneficiary named \"Global Trade Solutions\". The wire instruction includes a beneficiary address (456 Oak Ave, London, UK) that does not match the address on file for the account holder (123 Maple St, Springfield, IL 62704). The customer does not typically send international wires; their historical activity consists mainly of domestic ACH payments and card\u2011present purchases. This mismatch of address, combined with the unusual timing, high amount relative to the account\u2019s usual activity, and the international nature of the wire, creates ambiguity about whether the transaction is legitimate (e.g., a recent move not yet reflected in the system) or fraudulent.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert SYN-1234: A long\u2011tenure (5\u2011year) low\u2011risk personal checking account with average monthly activity of ~$200 and no prior flags attempts a $1,850 card\u2011not\u2011present purchase at an online electronics merchant at 02:13\u202fAM. The transaction triggers an address\u2011verification mismatch; the billing address on file differs from the shipping address supplied.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234\nAccount: Checking account opened 8 months ago, average 12 transactions/month, no prior fraud flags, tenure 0.67 years.\nEvent: $2,450 card-not-present purchase at an online electronics retailer at 02:13 AM.\nChannel: Card-not-present.\nNote: Transaction amount is just below the $2,500 high-value threshold; account has no prior high-value activity but shipping address differs from billing address on file (address verification pending).\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    },
+    {
+      "alert_id": "SYN-0427",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-0427. Account: personal debit card, tenure 24 months, average 3 transactions per week, no prior fraud flags. Event: $1,250 purchase at an online electronics merchant (card-not-present) occurring at 02:14 AM local time. Channel: card-not-present. Note: The transaction lacks a verified billing address; address verification service returned no match.\n\nRespond with the JSON object only.",
+      "policy_boundary": true
+    },
+    {
+      "alert_id": "SYN-1234",
+      "true_action": "request_more_info",
+      "prompt": "You are a fraud-alert triage system. Given the alert below, respond with ONLY a single JSON object matching exactly this schema, with no other text before or after it:\n{\"alert_id\": string, \"action\": one of [\"approve\",\"decline\",\"escalate_l2\",\"request_more_info\"], \"risk_score\": float 0.0-1.0, \"confidence\": float 0.0-1.0, \"policy_flags\": array of strings, \"rationale\": string, max 1000 chars}\n\nAlert:\nAlert ID: SYN-1234. Account: Visa credit card ending in 4567, held for 24 months, average 3 transactions per month, no prior fraud flags. Event: $2,450.00 purchase at 'TechGear Online' (electronics merchant) conducted via card\u2011not\u2011present channel at 02:17 AM local time. The transaction was authorized but the shipping address provided (123 Maple St, Springfield, IL) does not match the billing address on file (456 Oak Ave, Springfield, IL). No recent address change recorded in the system.\n\nRespond with the JSON object only.",
+      "policy_boundary": false
+    }
+  ]
+}
