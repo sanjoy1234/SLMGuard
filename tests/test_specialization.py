@@ -23,8 +23,10 @@ from slmguard.backends.types import (
     RawModelOutput,
 )
 from slmguard.evaluation import ChallengeSet, HeldOutSet, LabeledCase
+from slmguard.rubric import SyntheticExample, score_batch
 from slmguard.schema import Action
 from slmguard.specialization import (
+    SpecializationPool,
     build_specialization_pool,
     convert_trace,
     evaluate_challenge_set,
@@ -306,6 +308,8 @@ def test_run_cycle_short_circuits_on_insufficient_pool(tmp_path):
     assert result.promoted is False
     assert "insufficient specialization signal" in result.reason
     assert result.decision is None
+    assert result.quality_outcome == "not_evaluated"
+    assert result.eval_audit_path is None
     assert backend.fine_tune_calls == []
 
 
@@ -341,6 +345,7 @@ def test_run_cycle_promotes_when_candidate_improves(tmp_path):
     assert result.candidate_summary.accuracy == pytest.approx(1.0)
     assert result.promoted is True
     assert result.reason == "all gates passed"
+    assert result.quality_outcome == "improved"
 
 
 def test_run_cycle_does_not_promote_when_candidate_regresses(tmp_path):
@@ -393,6 +398,7 @@ def test_run_cycle_does_not_promote_when_candidate_regresses(tmp_path):
     assert result.promoted is False
     assert "no promotion this cycle" in result.reason
     assert "accuracy" in result.reason
+    assert result.quality_outcome == "degraded"
 
 
 def test_evaluate_challenge_set_reports_true_regression():
@@ -478,3 +484,111 @@ def test_run_cycle_promotes_despite_shared_challenge_failure(tmp_path):
     assert result.challenge_report.new_failures == 0
     assert result.promoted is True
     assert result.reason == "all gates passed"
+
+
+def _prebuilt_pool(n: int = 6) -> SpecializationPool:
+    examples = [
+        SyntheticExample(
+            scenario=GOOD_PROMPT + f" case {i}.",
+            recommendation_json=_recommendation_json(alert_id=f"POOL-{i}"),
+            diversity_tags=("transaction_type",),
+        )
+        for i in range(n)
+    ]
+    score = score_batch(examples)
+    return SpecializationPool(
+        examples=tuple(examples),
+        rubric_score=score,
+        traces_scanned=0,
+        traces_selected=n,
+        traces_unconvertible=0,
+    )
+
+
+def test_run_cycle_uses_a_prebuilt_pool_and_skips_trace_selection(tmp_path):
+    # An empty audit store would normally short-circuit on insufficient
+    # signal -- a prebuilt pool must bypass trace-based selection entirely.
+    store = SQLiteAuditStore(str(tmp_path / "a.db"))
+    backend = FakeBackend(
+        base_version="base-model",
+        base_action=Action.APPROVE,
+        candidate_actions={
+            "CASE-1": Action.APPROVE,
+            "CASE-2": Action.DECLINE,
+            "CASE-3": Action.ESCALATE_L2,
+            "CASE-4": Action.REQUEST_MORE_INFO,
+        },
+    )
+
+    result = run_cycle(
+        store=store,
+        backend=backend,
+        base_model_version="base-model",
+        held_out_set=_held_out_set(),
+        challenge_set=_challenge_set(),
+        lora_config=_lora_config(),
+        work_dir=tmp_path / "work",
+        pool=_prebuilt_pool(),
+    )
+
+    assert len(result.pool.examples) == 6
+    assert len(backend.fine_tune_calls) == 1
+    assert result.quality_outcome == "improved"
+
+
+def test_run_cycle_writes_eval_audit_records_with_policy_metadata(tmp_path):
+    store = SQLiteAuditStore(str(tmp_path / "a.db"))
+    for i in range(6):
+        store.append(_trace(trace_id=f"t{i}", confidence=0.4, alert_id=f"ALERT-{i}"))
+    backend = FakeBackend(
+        base_version="base-model",
+        base_action=Action.APPROVE,
+        candidate_actions={
+            "CASE-1": Action.APPROVE,
+            "CASE-2": Action.DECLINE,
+            "CASE-3": Action.ESCALATE_L2,
+            "CASE-4": Action.REQUEST_MORE_INFO,
+        },
+    )
+
+    result = run_cycle(
+        store=store,
+        backend=backend,
+        base_model_version="base-model",
+        held_out_set=_held_out_set(),
+        challenge_set=_challenge_set(),
+        lora_config=_lora_config(),
+        work_dir=tmp_path / "work",
+    )
+
+    assert result.eval_audit_path is not None
+    eval_audit = SQLiteAuditStore(str(result.eval_audit_path))
+    assert eval_audit.verify_chain() is True
+    rows = eval_audit.query(limit=1000)
+    # 4 held-out cases x 2 models + 1 challenge case x 2 models = 10 rows
+    assert len(rows) == 10
+    assert all(r.trace.policy_version == "policy-v1" for r in rows)
+    model_versions = {r.trace.model_version for r in rows}
+    assert "base-model" in model_versions
+    assert len(model_versions) == 2  # baseline and candidate (fused path) differ
+
+
+def test_run_cycle_can_disable_eval_audit(tmp_path):
+    store = SQLiteAuditStore(str(tmp_path / "a.db"))
+    for i in range(6):
+        store.append(_trace(trace_id=f"t{i}", confidence=0.4, alert_id=f"ALERT-{i}"))
+    backend = FakeBackend("base-model", Action.APPROVE, {})
+
+    result = run_cycle(
+        store=store,
+        backend=backend,
+        base_model_version="base-model",
+        held_out_set=_held_out_set(),
+        challenge_set=_challenge_set(),
+        lora_config=_lora_config(),
+        work_dir=tmp_path / "work",
+        enable_eval_audit=False,
+    )
+
+    assert result.eval_audit_path is None
+    assert not (tmp_path / "work" / "eval_audit.db").exists()

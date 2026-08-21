@@ -14,6 +14,7 @@ from slmguard.evaluation import (
     LabeledCase,
     PromotionThresholds,
     accuracy,
+    classify_quality_outcome,
     confidence_correctness_correlation,
     evaluate_promotion,
     expected_calibration_error,
@@ -257,3 +258,26 @@ def test_calibration_blocks_once_hard_gate_enabled():
     )
     assert decision.promoted is False
     assert "confidence_calibration" in decision.reason
+
+
+def test_quality_outcome_improved_when_delta_exceeds_epsilon():
+    assert classify_quality_outcome(_summary(0.50), _summary(0.30)) == "improved"
+
+
+def test_quality_outcome_degraded_when_delta_exceeds_epsilon():
+    assert classify_quality_outcome(_summary(0.30), _summary(0.50)) == "degraded"
+
+
+def test_quality_outcome_unchanged_for_a_tiny_delta():
+    # 0.3434 -> 0.3373 is a real difference but well inside the default
+    # epsilon -- exactly the priority-4 cycle's actual numbers.
+    assert classify_quality_outcome(_summary(0.3373), _summary(0.3434)) == "unchanged"
+
+
+def test_quality_outcome_unchanged_when_identical():
+    assert classify_quality_outcome(_summary(0.5), _summary(0.5)) == "unchanged"
+
+
+def test_quality_outcome_respects_custom_epsilon():
+    assert classify_quality_outcome(_summary(0.52), _summary(0.50), epsilon=0.05) == "unchanged"
+    assert classify_quality_outcome(_summary(0.56), _summary(0.50), epsilon=0.05) == "improved"

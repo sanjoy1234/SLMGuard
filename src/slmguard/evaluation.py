@@ -26,6 +26,8 @@ NUM_CALIBRATION_BINS = 10
 MIN_HELD_OUT_SIZE = 150
 MAX_HELD_OUT_SIZE = 300
 
+QUALITY_OUTCOME_EPSILON = 0.01
+
 
 @dataclass(frozen=True)
 class LabeledCase:
@@ -286,3 +288,28 @@ def evaluate_promotion(
         reason = f"no promotion this cycle: failed gate(s): {failed}"
 
     return PromotionDecision(promoted=promoted, reason=reason, gates=tuple(gates))
+
+
+def classify_quality_outcome(
+    candidate: EvaluationSummary,
+    baseline: EvaluationSummary,
+    *,
+    epsilon: float = QUALITY_OUTCOME_EPSILON,
+) -> str:
+    """A second, independent signal alongside the promotion decision:
+    "promoted" only ever answers "did this regress" (a no-regression gate),
+    which is not the same question as "did this actually get better." A
+    cycle can be promoted and still be classified "unchanged" -- that's the
+    point of reporting both rather than letting "promoted" be read as
+    "improved."
+
+    Returns "improved" if candidate accuracy exceeds baseline by more than
+    `epsilon`, "degraded" if it falls short by more than `epsilon`, and
+    "unchanged" for anything inside that band -- a small held-out set makes
+    tiny deltas noise, not signal, so they're deliberately not over-read."""
+    delta = candidate.accuracy - baseline.accuracy
+    if delta > epsilon:
+        return "improved"
+    if delta < -epsilon:
+        return "degraded"
+    return "unchanged"

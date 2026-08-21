@@ -40,9 +40,12 @@ not glossed over):
 from __future__ import annotations
 
 import json
+import uuid
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
+from slmguard.audit import get_audit_store
 from slmguard.audit.base import AuditStore
 from slmguard.audit.types import TraceRecord
 from slmguard.backends.base import ModelBackend, validate_output
@@ -55,6 +58,7 @@ from slmguard.evaluation import (
     LabeledCase,
     PromotionDecision,
     PromotionThresholds,
+    classify_quality_outcome,
     evaluate_promotion,
     summarize,
 )
@@ -198,7 +202,13 @@ def write_training_dataset(
     return dataset_dir
 
 
-def evaluate_case(backend: ModelBackend, model: LoadedModel, case: LabeledCase) -> EvaluatedCase:
+def evaluate_case(
+    backend: ModelBackend,
+    model: LoadedModel,
+    case: LabeledCase,
+    *,
+    audit_store: AuditStore | None = None,
+) -> EvaluatedCase:
     """Run one held-out/challenge case through the model. A schema failure
     counts as escalate_l2 (matching the real control-plane failure mode:
     schema failure -> hard escalation) but is flagged schema_valid=False so
@@ -211,9 +221,42 @@ def evaluate_case(backend: ModelBackend, model: LoadedModel, case: LabeledCase) 
     actually working. `policy_violated` is exactly the metric the harness
     already defines it as ("would have violated policy had the control
     plane not intervened") -- computed for real via apply_policy now, no
-    longer hardcoded False."""
+    longer hardcoded False.
+
+    When `audit_store` is given, every call writes a real TraceRecord --
+    policy_version, policy_overridden, policy_violated_rule_ids included --
+    so a cycle's evaluation activity is governed by the same hash-chained,
+    tamper-evident mechanism as production traces, not just a transient
+    in-memory flag. `model.version_id` (the base model string vs. the fused
+    model's local path) is what distinguishes baseline from candidate rows."""
     raw = backend.generate(model, case.prompt)
     recommendation = validate_output(raw)
+    policy_decision = apply_policy(recommendation) if recommendation else None
+
+    if audit_store is not None:
+        audit_store.append(
+            TraceRecord(
+                trace_id=str(uuid.uuid4()),
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                alert_id=case.alert_id,
+                prompt=case.prompt,
+                raw_output=raw.text,
+                schema_valid=recommendation is not None,
+                recommendation_json=recommendation.model_dump_json() if recommendation else None,
+                final_action=(
+                    policy_decision.final_action.value if policy_decision else "escalate"
+                ),
+                confidence=recommendation.confidence if recommendation else None,
+                model_version=model.version_id,
+                backend_name=backend.name,
+                policy_version=policy_decision.policy_version if policy_decision else None,
+                policy_overridden=policy_decision.overridden if policy_decision else False,
+                policy_violated_rule_ids=(
+                    json.dumps(list(policy_decision.violated_rule_ids)) if policy_decision else "[]"
+                ),
+            )
+        )
+
     if recommendation is None:
         return EvaluatedCase(
             alert_id=case.alert_id,
@@ -223,7 +266,6 @@ def evaluate_case(backend: ModelBackend, model: LoadedModel, case: LabeledCase) 
             policy_violated=False,
             schema_valid=False,
         )
-    policy_decision = apply_policy(recommendation)
     return EvaluatedCase(
         alert_id=case.alert_id,
         true_action=case.true_action,
@@ -235,9 +277,13 @@ def evaluate_case(backend: ModelBackend, model: LoadedModel, case: LabeledCase) 
 
 
 def evaluate_model(
-    backend: ModelBackend, model: LoadedModel, cases: list[LabeledCase]
+    backend: ModelBackend,
+    model: LoadedModel,
+    cases: list[LabeledCase],
+    *,
+    audit_store: AuditStore | None = None,
 ) -> EvaluationSummary:
-    return summarize([evaluate_case(backend, model, c) for c in cases])
+    return summarize([evaluate_case(backend, model, c, audit_store=audit_store) for c in cases])
 
 
 @dataclass(frozen=True)
@@ -260,13 +306,21 @@ def evaluate_challenge_set(
     baseline_model: LoadedModel,
     candidate_model: LoadedModel,
     challenge_set: ChallengeSet,
+    *,
+    audit_store: AuditStore | None = None,
 ) -> ChallengeSetReport:
     """Run the challenge set against both models and report true regression:
     a case the baseline got right that the candidate gets wrong. A case
     neither model gets right is not a regression -- it's a pre-existing gap
     the specialization loop didn't cause and can't be blamed for here."""
-    baseline_evaluated = [evaluate_case(backend, baseline_model, c) for c in challenge_set.cases]
-    candidate_evaluated = [evaluate_case(backend, candidate_model, c) for c in challenge_set.cases]
+    baseline_evaluated = [
+        evaluate_case(backend, baseline_model, c, audit_store=audit_store)
+        for c in challenge_set.cases
+    ]
+    candidate_evaluated = [
+        evaluate_case(backend, candidate_model, c, audit_store=audit_store)
+        for c in challenge_set.cases
+    ]
 
     new_failure_ids = tuple(
         case.alert_id
@@ -288,10 +342,12 @@ class CycleResult:
     pool: SpecializationPool
     promoted: bool
     reason: str
+    quality_outcome: str
     decision: PromotionDecision | None
     baseline_summary: EvaluationSummary | None
     candidate_summary: EvaluationSummary | None
     challenge_report: ChallengeSetReport | None
+    eval_audit_path: Path | None
 
 
 def run_cycle(
@@ -306,15 +362,39 @@ def run_cycle(
     min_pool_size: int = MIN_POOL_SIZE,
     confidence_threshold: float = DEFAULT_CONFIDENCE_THRESHOLD,
     promotion_thresholds: PromotionThresholds = PromotionThresholds(),
+    pool: SpecializationPool | None = None,
+    enable_eval_audit: bool = True,
 ) -> CycleResult:
     """Run one full specialization cycle: select -> convert -> fine-tune ->
     fuse -> evaluate -> promote. Always returns a CycleResult with an
     explicit reason -- "no promotion this cycle" is a first-class outcome,
     not the absence of one, whether the cycle stops early for insufficient
-    signal or runs the full pipeline and fails a gate."""
-    pool = build_specialization_pool(
-        store, confidence_threshold=confidence_threshold, limit=500
-    )
+    signal or runs the full pipeline and fails a gate.
+
+    `pool`, when given, is used as-is instead of building one from `store`
+    via trace selection -- e.g. a materially larger, class-weighted pool
+    built by slmguard.generate_data against a teacher model. The audit
+    store is still required (evaluation governance logging and any future
+    trace-based selection still depend on it), but pool construction from
+    it is skipped.
+
+    `enable_eval_audit` (on by default) writes every held-out/challenge
+    evaluation call -- baseline and candidate alike -- to a dedicated,
+    hash-chained AuditStore at `work_dir/eval_audit.db`, so this cycle's
+    policy decisions are real, verifiable audit records, not just numbers
+    in a summary. Kept separate from the production trace store so a large
+    held-out set's evaluation traffic never gets mixed into real triage
+    history."""
+    if pool is None:
+        pool = build_specialization_pool(
+            store, confidence_threshold=confidence_threshold, limit=500
+        )
+
+    eval_audit_store: AuditStore | None = None
+    eval_audit_path: Path | None = None
+    if enable_eval_audit:
+        eval_audit_path = work_dir / "eval_audit.db"
+        eval_audit_store = get_audit_store("sqlite", str(eval_audit_path))
 
     if len(pool.examples) < min_pool_size:
         return CycleResult(
@@ -324,14 +404,18 @@ def run_cycle(
                 f"no promotion this cycle: insufficient specialization signal "
                 f"({len(pool.examples)} rubric-passing example(s), need >= {min_pool_size})"
             ),
+            quality_outcome="not_evaluated",
             decision=None,
             baseline_summary=None,
             candidate_summary=None,
             challenge_report=None,
+            eval_audit_path=None,
         )
 
     base_model = backend.load_model(base_model_version)
-    baseline_summary = evaluate_model(backend, base_model, list(held_out_set.cases))
+    baseline_summary = evaluate_model(
+        backend, base_model, list(held_out_set.cases), audit_store=eval_audit_store
+    )
 
     dataset_dir = write_training_dataset(
         pool, work_dir / "dataset", min_valid_size=lora_config.batch_size
@@ -340,8 +424,12 @@ def run_cycle(
     fused_version = backend.fuse_adapters(base_model, adapter)
     fused_model = backend.load_model(str(fused_version.fused_weights_path))
 
-    candidate_summary = evaluate_model(backend, fused_model, list(held_out_set.cases))
-    challenge_report = evaluate_challenge_set(backend, base_model, fused_model, challenge_set)
+    candidate_summary = evaluate_model(
+        backend, fused_model, list(held_out_set.cases), audit_store=eval_audit_store
+    )
+    challenge_report = evaluate_challenge_set(
+        backend, base_model, fused_model, challenge_set, audit_store=eval_audit_store
+    )
 
     decision = evaluate_promotion(
         candidate=candidate_summary,
@@ -349,13 +437,16 @@ def run_cycle(
         challenge_set_new_failures=challenge_report.new_failures,
         thresholds=promotion_thresholds,
     )
+    quality_outcome = classify_quality_outcome(candidate_summary, baseline_summary)
 
     return CycleResult(
         pool=pool,
         promoted=decision.promoted,
         reason=decision.reason,
+        quality_outcome=quality_outcome,
         decision=decision,
         baseline_summary=baseline_summary,
         candidate_summary=candidate_summary,
         challenge_report=challenge_report,
+        eval_audit_path=eval_audit_path,
     )

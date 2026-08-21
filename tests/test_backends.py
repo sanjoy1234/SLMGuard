@@ -88,6 +88,61 @@ def test_mlx_fine_tune_passes_batch_size_max_seq_length_and_grad_checkpoint(monk
     assert artifact.base_version_id == "some-model"
 
 
+def test_mlx_fine_tune_scales_iters_with_dataset_size(monkeypatch, tmp_path):
+    # Regression test: LoRAConfig.epochs must behave like real epochs over
+    # the actual training set, not a fixed --iters count that barely
+    # touches a large pool. 100 examples, batch_size=2, epochs=3 ->
+    # 50 steps/epoch * 3 = 150 iters, not 3.
+    captured_cmd = {}
+
+    def fake_run(cmd, check):
+        captured_cmd["cmd"] = cmd
+
+    monkeypatch.setattr("slmguard.backends.mlx_backend.subprocess.run", fake_run)
+
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    (dataset / "train.jsonl").write_text('{"messages": []}\n' * 100)
+    model = LoadedModel(version_id="some-model", backend_name="mlx", handle=(None, None))
+    config = LoRAConfig(
+        rank=8,
+        alpha=16,
+        epochs=3,
+        learning_rate=1e-5,
+        batch_size=2,
+        max_seq_length=512,
+        grad_checkpoint=True,
+    )
+
+    MLXBackend().fine_tune(model, dataset, config)
+
+    cmd = captured_cmd["cmd"]
+    assert cmd[cmd.index("--iters") + 1] == "150"
+
+
+def test_mlx_fine_tune_iters_never_drops_below_one(monkeypatch, tmp_path):
+    captured_cmd = {}
+
+    def fake_run(cmd, check):
+        captured_cmd["cmd"] = cmd
+
+    monkeypatch.setattr("slmguard.backends.mlx_backend.subprocess.run", fake_run)
+
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    (dataset / "train.jsonl").write_text("")  # empty file, 0 lines
+    model = LoadedModel(version_id="some-model", backend_name="mlx", handle=(None, None))
+    config = LoRAConfig(
+        rank=8, alpha=16, epochs=1, learning_rate=1e-5, batch_size=2,
+        max_seq_length=512, grad_checkpoint=False,
+    )
+
+    MLXBackend().fine_tune(model, dataset, config)
+
+    cmd = captured_cmd["cmd"]
+    assert int(cmd[cmd.index("--iters") + 1]) >= 1
+
+
 def test_mlx_fine_tune_omits_grad_checkpoint_flag_when_disabled(monkeypatch, tmp_path):
     captured_cmd = {}
 

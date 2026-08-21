@@ -16,6 +16,13 @@ default) caused a NaN loss divergence and a 5.86GB peak footprint on this
 has no direct CLI flag for them, only a `-c config.yaml` override — so this
 implementation currently rides mlx_lm's own rank=8 default, which happens
 to match `config/backend.yaml`'s configured rank but isn't yet enforced.
+
+`config.epochs` is translated into mlx_lm's `--iters` via `_epochs_to_iters`,
+counting the actual training set size rather than passing `epochs` straight
+through as a raw step count (found and fixed 2026-08-21: every prior
+fine-tune run did exactly `epochs` gradient steps regardless of dataset
+size, so a larger pool was silently getting the same tiny amount of
+training as an 8-example one).
 """
 
 from __future__ import annotations
@@ -59,6 +66,8 @@ class MLXBackend(ModelBackend):
         adapter_dir = dataset.parent / "adapters" / model.version_id
         adapter_dir.mkdir(parents=True, exist_ok=True)
 
+        iters = _epochs_to_iters(dataset / "train.jsonl", config.epochs, config.batch_size)
+
         cmd = [
             sys.executable,
             "-m",
@@ -73,7 +82,7 @@ class MLXBackend(ModelBackend):
             "--num-layers",
             str(len(config.target_modules)) if config.target_modules else "4",
             "--iters",
-            str(config.epochs),
+            str(iters),
             "--learning-rate",
             str(config.learning_rate),
             "--batch-size",
@@ -118,6 +127,20 @@ class MLXBackend(ModelBackend):
             backend_name=self.name,
             fused_weights_path=fused_dir,
         )
+
+
+def _epochs_to_iters(train_jsonl: Path, epochs: int, batch_size: int) -> int:
+    """mlx_lm.lora has no native epoch concept, only --iters (a raw gradient
+    step count). LoRAConfig.epochs is named and documented as epochs over
+    the actual training set -- passing it straight through as --iters (the
+    original implementation) meant every fine-tune run did exactly
+    `epochs` gradient steps regardless of dataset size: 3 steps at
+    batch_size=2 is ~6 example-exposures whether the pool has 8 examples or
+    800. Translating epochs into the correct step count here is what makes
+    "epochs" actually mean epochs, and what makes a larger pool matter."""
+    train_size = sum(1 for _ in train_jsonl.open())
+    steps_per_epoch = max(1, train_size // batch_size)
+    return max(1, steps_per_epoch * epochs)
 
 
 def _hash_dataset_dir(path: Path) -> str:
