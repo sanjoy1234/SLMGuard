@@ -18,12 +18,18 @@ latent:
    wrong input distribution. Every example here is re-wrapped via
    `heldout_construction.build_prompt` before being packaged into the pool.
 
-2. Teacher-generated `alert_id`s are not guaranteed unique (format
-   "SYN-<4 digits>" collides across independent generation calls -- observed
-   directly in this project's own generated batches). Alert-id equality
-   alone is not a reliable overlap check, so separation from the eval sets
-   is enforced on exact scenario text as the primary signal, with alert-id
-   overlap checked and reported separately.
+2. Teacher-generated `alert_id`s are not merely occasionally duplicated --
+   they're severely low-entropy. Measured directly against this project's
+   own 166-case held-out set: 14 unique alert_ids total, one of them
+   ("SYN-1234") covering 111 of the 166 cases. A first version of this
+   module excluded on alert_id equality as a hard filter and, run for
+   real, dropped 49 of 52 freshly-generated (genuinely distinct-content)
+   examples as false "overlap" purely because the teacher reused a common
+   placeholder id -- a real, measured failure, not a hypothetical one.
+   Alert-id equality is now report-only (`alert_id_collisions_seen`),
+   never grounds for exclusion; exact scenario text is the sole exclusion
+   criterion, since that's the only signal that actually reflects content
+   duplication.
 """
 
 from __future__ import annotations
@@ -50,7 +56,7 @@ class PoolGenerationReport:
     total_specs: int
     total_generated: int
     excluded_for_scenario_overlap: int
-    excluded_for_alert_id_overlap: int
+    alert_id_collisions_seen: int
     by_true_action: dict[str, int]
     chunk_accepted: dict[str, bool]
     chunk_attempts: dict[str, int]
@@ -71,10 +77,12 @@ def generate_specialization_pool(
     separate chunks so a rubric rejection only costs regenerating one
     action's chunk, not the whole pool.
 
-    `exclude_prompts`/`exclude_alert_ids` should be the frozen held-out and
-    challenge sets' scenario text and alert_ids -- any generated example
-    matching either is dropped before it ever reaches the returned pool,
-    never folded in with a "close enough" judgment call.
+    `exclude_prompts` should be the frozen held-out and challenge sets'
+    (wrapped) scenario text -- any generated example with an exact match is
+    dropped before it ever reaches the returned pool. `exclude_alert_ids`
+    is tracked for visibility (`PoolGenerationReport.alert_id_collisions_seen`)
+    but never causes exclusion on its own -- see the module docstring for
+    why alert_id equality isn't a reliable duplication signal here.
 
     Returns the pool (with re-wrapped, training-ready prompts), a report,
     and the raw kept `GeneratedExample`s (with teacher metadata) for
@@ -110,16 +118,21 @@ def generate_specialization_pool(
     ]
 
     excluded_scenario = 0
-    excluded_alert_id = 0
+    alert_id_collisions_seen = 0
     kept: list[GeneratedExample] = []
     for g in wrapped_all:
         recommendation = json.loads(g.example.recommendation_json)
         alert_id = recommendation.get("alert_id")
+        if alert_id in exclude_alert_ids:
+            # Not excluded on this alone: measured directly against this
+            # project's own eval sets, the teacher reuses a handful of
+            # "SYN-<4 digits>" values constantly (one id covered 111/166
+            # held-out cases) -- alert_id equality reflects the teacher's
+            # low ID entropy, not real content duplication. Tracked for
+            # visibility, never used to drop an otherwise-good example.
+            alert_id_collisions_seen += 1
         if g.example.scenario in exclude_prompts:
             excluded_scenario += 1
-            continue
-        if alert_id in exclude_alert_ids:
-            excluded_alert_id += 1
             continue
         kept.append(g)
 
@@ -136,14 +149,14 @@ def generate_specialization_pool(
         rubric_score=rubric_score,
         traces_scanned=total_specs,
         traces_selected=len(all_generated),
-        traces_unconvertible=excluded_scenario + excluded_alert_id,
+        traces_unconvertible=excluded_scenario,
     )
     report = PoolGenerationReport(
         target_counts=dict(counts),
         total_specs=total_specs,
         total_generated=len(all_generated),
         excluded_for_scenario_overlap=excluded_scenario,
-        excluded_for_alert_id_overlap=excluded_alert_id,
+        alert_id_collisions_seen=alert_id_collisions_seen,
         by_true_action=by_true_action,
         chunk_accepted=chunk_accepted,
         chunk_attempts=chunk_attempts,
@@ -217,7 +230,7 @@ def write_pool_report(
                 "total_specs": report.total_specs,
                 "total_generated": report.total_generated,
                 "excluded_for_scenario_overlap": report.excluded_for_scenario_overlap,
-                "excluded_for_alert_id_overlap": report.excluded_for_alert_id_overlap,
+                "alert_id_collisions_seen": report.alert_id_collisions_seen,
                 "final_pool_size": len(pool.examples),
                 "by_true_action": report.by_true_action,
                 "chunk_accepted": report.chunk_accepted,

@@ -97,17 +97,21 @@ def test_excludes_examples_matching_eval_set_scenario_text():
 
     assert len(pool.examples) == 0
     assert report.excluded_for_scenario_overlap == 1
-    assert report.excluded_for_alert_id_overlap == 0
+    assert report.alert_id_collisions_seen == 0
 
 
-def test_excludes_examples_matching_eval_set_alert_id():
+def test_alert_id_collision_is_reported_but_never_excludes():
+    # Measured directly against this project's real held-out set: the
+    # teacher reuses a handful of alert_ids constantly (one id covered
+    # 111/166 cases) -- equality alone must never drop an otherwise-good,
+    # genuinely distinct-content example.
     teacher = FakeTeacher(alert_id_for_call=lambda i: "SYN-COLLIDE")
     pool, report, kept = generate_specialization_pool(
         teacher, counts={"decline": 2}, exclude_alert_ids=frozenset({"SYN-COLLIDE"})
     )
 
-    assert len(pool.examples) == 0
-    assert report.excluded_for_alert_id_overlap == 2
+    assert len(pool.examples) == 2
+    assert report.alert_id_collisions_seen == 2
     assert report.excluded_for_scenario_overlap == 0
 
 
@@ -122,7 +126,7 @@ def test_non_overlapping_examples_are_kept():
 
     assert len(pool.examples) == 3
     assert report.excluded_for_scenario_overlap == 0
-    assert report.excluded_for_alert_id_overlap == 0
+    assert report.alert_id_collisions_seen == 0
     assert len(kept) == 3
 
 
