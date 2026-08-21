@@ -28,6 +28,7 @@ from slmguard.generate_data import default_generation_specs, generate_batch, wri
 from slmguard.policy import apply_policy
 from slmguard.schema import Action
 from slmguard.specialization import DEFAULT_CONFIDENCE_THRESHOLD, run_cycle
+from slmguard.specialization_pool_generation import load_pool_from_jsonl
 from slmguard.teacher import get_teacher
 
 DEFAULT_CONFIG = Path("config/backend.yaml")
@@ -214,6 +215,17 @@ def _load_labeled_cases(path: Path) -> tuple[str, tuple[LabeledCase, ...]]:
     show_default=True,
     help="Traces with confidence below this are selected as low-confidence.",
 )
+@click.option(
+    "--pool",
+    "pool_path",
+    type=click.Path(path_type=Path, exists=True),
+    default=None,
+    help=(
+        "JSONL file from generate-data / slmguard.specialization_pool_generation "
+        "(scenario/recommendation_json/diversity_tags/teacher per line). When "
+        "given, used as-is instead of selecting traces from the audit store."
+    ),
+)
 @click.pass_context
 def specialize(
     ctx: click.Context,
@@ -221,15 +233,18 @@ def specialize(
     challenge_set_path: Path,
     work_dir: Path,
     confidence_threshold: float,
+    pool_path: Path | None,
 ) -> None:
     """Run one specialization cycle end to end: select useful traces from the
-    audit store, convert the rubric-passing ones into training examples,
-    fine-tune, fuse, evaluate against the held-out and challenge sets, and
-    emit an explicit promotion decision -- including "no promotion this
-    cycle" as a first-class outcome, not a failure."""
+    audit store (or use --pool), convert/keep the rubric-passing ones as
+    training examples, fine-tune, fuse, evaluate against the held-out and
+    challenge sets, and emit an explicit promotion decision -- including "no
+    promotion this cycle" as a first-class outcome, not a failure."""
     settings = ctx.obj["settings"]
     backend = get_backend(settings.backend)
     audit_store = get_audit_store(settings.audit_store.backend, settings.audit_store.location)
+
+    prebuilt_pool = load_pool_from_jsonl(pool_path) if pool_path is not None else None
 
     held_out_version, held_out_cases = _load_labeled_cases(held_out_set_path)
     held_out_set = HeldOutSet(version=held_out_version, cases=held_out_cases)
@@ -267,18 +282,32 @@ def specialize(
         lora_config=lora_config,
         work_dir=work_dir / cycle_id,
         confidence_threshold=confidence_threshold,
+        pool=prebuilt_pool,
     )
 
-    click.echo(
-        f"Pool: {len(result.pool.examples)} rubric-passing example(s) from "
-        f"{result.pool.traces_selected} selected trace(s) "
-        f"({result.pool.traces_scanned} scanned, "
-        f"{result.pool.traces_unconvertible} unconvertible)."
-    )
-    if result.baseline_summary is not None:
-        click.echo(f"Baseline accuracy: {result.baseline_summary.accuracy:.3f}")
-    if result.candidate_summary is not None:
-        click.echo(f"Candidate accuracy: {result.candidate_summary.accuracy:.3f}")
+    if prebuilt_pool is not None:
+        click.echo(f"Pool: {len(result.pool.examples)} example(s) from --pool {pool_path}")
+    else:
+        click.echo(
+            f"Pool: {len(result.pool.examples)} rubric-passing example(s) from "
+            f"{result.pool.traces_selected} selected trace(s) "
+            f"({result.pool.traces_scanned} scanned, "
+            f"{result.pool.traces_unconvertible} unconvertible)."
+        )
+    if result.baseline_summary is not None and result.candidate_summary is not None:
+        click.echo(
+            f"Baseline accuracy: {result.baseline_summary.accuracy:.3f}  "
+            f"Candidate accuracy: {result.candidate_summary.accuracy:.3f}"
+        )
+        click.echo("Safety-critical class metrics (baseline -> candidate):")
+        for action in ("decline", "escalate_l2"):
+            b = result.baseline_summary.per_class.get(action)
+            c = result.candidate_summary.per_class.get(action)
+            if b is not None and c is not None:
+                click.echo(
+                    f"  {action}: precision {b.precision:.3f} -> {c.precision:.3f}, "
+                    f"recall {b.recall:.3f} -> {c.recall:.3f} (support {c.support})"
+                )
     if result.challenge_report is not None:
         cr = result.challenge_report
         click.echo(
@@ -289,6 +318,9 @@ def specialize(
         if cr.new_failure_alert_ids:
             click.echo(f"  New failures: {', '.join(cr.new_failure_alert_ids)}")
     click.echo(f"Decision: {result.reason}")
+    click.echo(f"Quality outcome: {result.quality_outcome}")
+    if result.eval_audit_path is not None:
+        click.echo(f"Governance audit: {result.eval_audit_path}")
 
     if not result.promoted:
         raise SystemExit(1)
