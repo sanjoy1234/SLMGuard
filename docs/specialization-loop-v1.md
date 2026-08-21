@@ -85,4 +85,30 @@ That the candidate didn't clearly beat the baseline (0.500 vs. 0.500) is expecte
 
 ---
 
-**Status:** v1. The mechanism is real and proven end to end. Not yet exercised: policy-engine-driven selection, teacher-model resolution of escalated traces, LLM-based privacy rewriting, or a run against the real (not bootstrap) held-out/challenge sets — all blocked on components this pass deliberately left out of scope.
+## Second real cycle: on the improved path, against the real eval sets (2026-08-20)
+
+Priority 4 of the post-validation build order: re-run the cycle end to end with everything the earlier passes fixed — corrected challenge-set semantics, the policy engine wired into selection/conversion/evaluation, and, most importantly, the real `eval_sets/held_out_set.json` (166 teacher-labeled, stratified cases, `validate_held_out_set`-passing) and `eval_sets/challenge_set.json` (20 cases) in place of the earlier 8-case Claude-authored bootstrap set.
+
+Ran via `slmguard specialize`-equivalent orchestration (`run_cycle` called directly, same code path) against the real audit store (8 fresh real traces from `run-baseline`, all rubric-passing) and the real MLX backend. This meant 166 + 166 (baseline + candidate held-out evaluation) + 20 + 20 (baseline + candidate challenge evaluation) = 372 real inference calls, plus a real fine-tune and fuse — roughly 32 minutes wall-clock to baseline-eval-through-fuse, ~70 minutes total. Every filesystem artifact (`dataset/{train,valid}.jsonl`, `adapters/.../adapters.safetensors`, `adapters/fused/.../model.safetensors`) confirmed present afterward; the fused model was independently reloaded in a fresh process and generated correctly; the audit chain (`verify_chain()`) remained intact.
+
+```
+Pool: 8/8 rubric-passing examples, 8 traces scanned, 0 unconvertible.
+Baseline accuracy:  0.3434 (n=166)
+Candidate accuracy: 0.3373 (n=166)
+Challenge set: 16/20 failed for both baseline and candidate; 0 new failures.
+Decision: promoted, all gates passed.
+  gate=accuracy                 candidate=0.3373 baseline=0.3434 max_drop=0.0200 -- passed
+  gate=policy_safety_compliance policy_violation_rate=0.0000 (zero tolerance)    -- passed
+  gate=confidence_calibration   ece=0.4548 (monitored only, not a hard gate)     -- passed
+  gate=regression_challenge_set new_failures=0                                  -- passed
+```
+
+**The headline number is sobering, and that's the point of using a real, adequately-sized set.** Both the 8-case and earlier 166-case-free bootstrap runs showed 50-100% accuracy — an artifact of tiny, non-representative samples. Against 166 real stratified cases, both the base 3B model and the lightly fine-tuned candidate sit at **~34% overall accuracy** — a genuinely useful, more trustworthy number precisely because the sample is now large enough to mean something.
+
+**The single most important finding from this run: both models have 0% recall and 0% precision on `decline`, out of 39 real decline cases.** Neither the base model nor the candidate ever correctly identifies a case that should be declined — a total blind spot on one of the two safety-critical action classes (`docs/evaluation-harness-v1.md` explicitly flags `decline`/`escalate_l2` as needing individual attention, never averaged away). The model instead leans heavily on `request_more_info` as a hedge: 86-88% recall on that class but only ~33% precision, meaning it's catching most genuine `request_more_info` cases by over-using that label broadly, including on cases that should have been declined outright. This was invisible in every earlier run in this project — the 8-case and 20-case bootstrap sets never had enough `decline` cases to expose it. It is the clearest evidence yet that this specialization pool (8 examples, 3 iterations, `num_layers=4`) is nowhere near enough signal to fix a systemic gap like this, and that real specialization work needs either a much larger, decline-focused trace pool or a policy rule that forces escalation on cases the model is inclined to wave through as `request_more_info` when risk signals are actually decline-shaped.
+
+**Why "promoted" here doesn't mean "improved":** candidate accuracy (0.3373) is very slightly *below* baseline (0.3434) — a real difference, but well inside the 2.0-percentage-point no-regression tolerance. The accuracy gate is (correctly, per its own spec) a no-regression check, not a must-improve check — see the note on this same distinction in the first cycle's write-up above. Both models also failed the identical 16/20 challenge cases, so the corrected regression semantics correctly report 0 new failures rather than penalizing the candidate for a pre-existing gap it didn't create. This is the plan's "no promotion is a valid outcome" framing's mirror image: a *promoted* cycle that didn't actually help, which is just as important to be able to say plainly as a rejected one.
+
+---
+
+**Status:** v2. The mechanism has now been proven twice end to end — once on a small bootstrap set (mechanism-only proof), once on the real, `validate_held_out_set`-passing 166-case set (a real, if still sobering, accuracy signal). Not yet exercised: teacher-model resolution of escalated traces, LLM-based privacy rewriting, or a specialization pool large enough to actually move accuracy (8 examples was enough to prove the pipeline, not enough to fix the decline blind spot this run surfaced).
