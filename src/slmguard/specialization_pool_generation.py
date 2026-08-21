@@ -151,6 +151,35 @@ def generate_specialization_pool(
     return pool, report, kept
 
 
+def load_pool_from_jsonl(path: Path) -> SpecializationPool:
+    """Reconstruct a SpecializationPool from a governance artifact written
+    by `write_pool_report` (or `generate_data.write_examples_jsonl`) --
+    lets pool generation and the cycle that consumes it run as separate
+    processes/scripts without re-generating anything. Rubric score is
+    recomputed on the loaded examples rather than trusted from the file, so
+    a hand-edited or corrupted pool file can't silently claim a pass rate
+    it no longer has."""
+    examples = []
+    with path.open() as f:
+        for line in f:
+            record = json.loads(line)
+            examples.append(
+                SyntheticExample(
+                    scenario=record["scenario"],
+                    recommendation_json=record["recommendation_json"],
+                    diversity_tags=tuple(record["diversity_tags"]),
+                )
+            )
+    rubric_score = score_batch(examples)
+    return SpecializationPool(
+        examples=tuple(examples),
+        rubric_score=rubric_score,
+        traces_scanned=len(examples),
+        traces_selected=len(examples),
+        traces_unconvertible=0,
+    )
+
+
 def load_eval_overlap_sets(*eval_set_paths: Path) -> tuple[frozenset[str], frozenset[str]]:
     """Load the scenario-text and alert_id sets to exclude from one or more
     eval_sets/*.json files (held_out_set.json, challenge_set.json). Returns

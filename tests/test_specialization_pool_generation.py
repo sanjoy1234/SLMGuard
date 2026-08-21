@@ -13,6 +13,7 @@ from slmguard.generate_data import ACTION_GUIDANCE
 from slmguard.specialization_pool_generation import (
     generate_specialization_pool,
     load_eval_overlap_sets,
+    load_pool_from_jsonl,
     write_pool_report,
 )
 from slmguard.teacher.base import Teacher
@@ -177,3 +178,19 @@ def test_write_pool_report_writes_both_artifacts_with_expected_content(tmp_path)
     assert report_data["final_pool_size"] == 3
     assert report_data["target_counts"] == {"decline": 2, "approve": 1}
     assert "rubric_pass_rate" in report_data
+
+
+def test_load_pool_from_jsonl_round_trips(tmp_path):
+    teacher = FakeTeacher()
+    pool, report, kept = generate_specialization_pool(teacher, counts={"decline": 2, "approve": 1})
+    examples_path, _ = write_pool_report(
+        pool, report, kept,
+        examples_path=tmp_path / "pool_examples.jsonl",
+        report_path=tmp_path / "pool_report.json",
+    )
+
+    reloaded = load_pool_from_jsonl(examples_path)
+
+    assert len(reloaded.examples) == 3
+    assert reloaded.rubric_score.accepted is True
+    assert {e.scenario for e in reloaded.examples} == {e.scenario for e in pool.examples}
