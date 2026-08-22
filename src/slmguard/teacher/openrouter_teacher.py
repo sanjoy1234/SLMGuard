@@ -17,6 +17,7 @@ is a synthetic-scenario instruction, by construction, not real case data.
 
 from __future__ import annotations
 
+import concurrent.futures
 import json
 import os
 import urllib.error
@@ -118,6 +119,32 @@ class OpenRouterTeacher(Teacher):
         )
 
     def _call(self, prompt: str) -> str:
+        """A real hang was observed running this project's own pool
+        generation at scale: a request sat on an established connection for
+        53+ minutes despite `urlopen(..., timeout=self._timeout)` -- the
+        socket-level timeout apparently doesn't bound a response that
+        trickles bytes slowly enough to keep resetting the read deadline
+        without ever completing. `urlopen`'s timeout alone is not trusted
+        as a hard ceiling anymore: the actual HTTP call runs in a worker
+        thread, and `future.result(timeout=...)` enforces a real wall-clock
+        deadline the caller cannot be blocked past, regardless of what the
+        socket is doing. The worker thread may keep running in the
+        background after we give up on it (Python cannot forcibly kill a
+        thread) -- `shutdown(wait=False)` ensures that doesn't block us."""
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(self._call_blocking, prompt)
+        try:
+            return future.result(timeout=self._timeout)
+        except concurrent.futures.TimeoutError as exc:
+            raise ValueError(
+                f"OpenRouterTeacher: request exceeded the {self._timeout}s wall-clock "
+                "deadline (the socket-level timeout did not catch this -- treating it "
+                "as a failed generation rather than hanging indefinitely)."
+            ) from exc
+        finally:
+            executor.shutdown(wait=False)
+
+    def _call_blocking(self, prompt: str) -> str:
         body = json.dumps(
             {
                 "model": self._model_id,
@@ -143,12 +170,29 @@ class OpenRouterTeacher(Teacher):
         return payload["choices"][0]["message"]["content"]
 
 
-def _fetch_all_models(api_key: str | None, timeout: float) -> list[dict]:
+def _fetch_all_models_blocking(api_key: str | None, timeout: float) -> list[dict]:
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
     request = urllib.request.Request(OPENROUTER_MODELS_URL, headers=headers)
     with urllib.request.urlopen(request, timeout=timeout) as response:
         payload = json.loads(response.read())
     return payload.get("data", [])
+
+
+def _fetch_all_models(api_key: str | None, timeout: float) -> list[dict]:
+    """Same hard wall-clock deadline as OpenRouterTeacher._call -- this runs
+    at construction time (the free-model check), so an unbounded hang here
+    would block object construction indefinitely, not just one generation."""
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    future = executor.submit(_fetch_all_models_blocking, api_key, timeout)
+    try:
+        return future.result(timeout=timeout)
+    except concurrent.futures.TimeoutError as exc:
+        raise ValueError(
+            f"OpenRouterTeacher: fetching the model catalog exceeded the {timeout}s "
+            "wall-clock deadline."
+        ) from exc
+    finally:
+        executor.shutdown(wait=False)
 
 
 def _fetch_model_pricing(

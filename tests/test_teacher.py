@@ -2,13 +2,17 @@
 what a real OpenRouter chat-completions response looks like -- request
 construction, JSON-envelope extraction even with wrapping chatter, clear
 failures (missing API key, HTTP error, malformed response) rather than
-silent bad data, and the hard "never a paid model" construction-time guard
-(rejects paid models and unknown model ids, accepts confirmed-free ones).
-No live network call -- urlopen is mocked throughout."""
+silent bad data, the hard "never a paid model" construction-time guard
+(rejects paid models and unknown model ids, accepts confirmed-free ones),
+and the hard wall-clock timeout that bounds a call even if the underlying
+socket-level timeout doesn't (a real hang was observed running this
+project's own pool generation -- 53+ minutes on one request despite a 60s
+socket timeout). No live network call -- urlopen is mocked throughout."""
 
 from __future__ import annotations
 
 import json
+import time
 import urllib.error
 
 import pytest
@@ -186,3 +190,25 @@ def test_construction_accepts_a_confirmed_free_model(monkeypatch):
     )
     teacher = OpenRouterTeacher(model_id="some/free-model", api_key="test-key")
     assert teacher._model_id == "some/free-model"
+
+
+def test_call_enforces_a_hard_wall_clock_timeout_even_if_the_socket_hangs(monkeypatch):
+    # Reproduces the actual observed failure: the blocking HTTP call never
+    # returns (simulating urlopen's socket-level timeout not catching a
+    # slow-trickle hang) -- generate() must still bound total wait time via
+    # the wrapping ThreadPoolExecutor deadline, not hang indefinitely.
+    def hanging_call(self, prompt):
+        time.sleep(5)
+        return "should never be reached"
+
+    monkeypatch.setattr(OpenRouterTeacher, "_call_blocking", hanging_call)
+    teacher = OpenRouterTeacher(
+        model_id="some/model", api_key="test-key", timeout=0.3, verify_free=False
+    )
+
+    start = time.monotonic()
+    with pytest.raises(ValueError, match="wall-clock deadline"):
+        teacher.generate(GenerationSpec(diversity_tags=(), guidance="test"))
+    elapsed = time.monotonic() - start
+
+    assert elapsed < 2.0
