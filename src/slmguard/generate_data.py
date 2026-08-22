@@ -17,6 +17,8 @@ below-threshold batch.
 from __future__ import annotations
 
 import json
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -126,6 +128,7 @@ def generate_batch(
     *,
     max_attempts: int = 3,
     pass_rate_threshold: float = DEFAULT_PASS_RATE,
+    on_call: Callable[[int, float, bool, str | None], None] | None = None,
 ) -> BatchGenerationResult:
     """Generate one full batch, scoring it against the rubric each attempt.
     Below-threshold batches are regenerated from scratch, not patched --
@@ -136,15 +139,31 @@ def generate_batch(
     error) does not crash the batch -- it counts as a failure against the
     *full* spec count for pass-rate purposes, same as a rubric-failing
     example, so a batch with several broken generations can't look
-    artificially clean just because the denominator shrank."""
+    artificially clean just because the denominator shrank.
+
+    `on_call`, if given, is invoked after every individual teacher call --
+    (call_number, elapsed_seconds, succeeded, error_message_or_None) -- for
+    real-time progress visibility on a large batch. Born from a real
+    debugging session: an opaque bulk run that only prints after an entire
+    60-call chunk finishes is indistinguishable from a genuine hang when the
+    backend is just slow, and telling those apart by process introspection
+    (thread counts, stack samples) is far less certain than direct,
+    per-call, real-time evidence."""
+    call_number = 0
     last_score: BatchScore | None = None
     for attempt in range(1, max_attempts + 1):
         teacher_examples: list[TeacherExample] = []
         for spec in specs:
+            call_number += 1
+            start = time.monotonic()
             try:
                 teacher_examples.append(teacher.generate(spec))
-            except Exception:
+            except Exception as exc:
+                if on_call is not None:
+                    on_call(call_number, time.monotonic() - start, False, str(exc))
                 continue
+            if on_call is not None:
+                on_call(call_number, time.monotonic() - start, True, None)
 
         candidates = [
             SyntheticExample(

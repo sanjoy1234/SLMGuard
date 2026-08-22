@@ -81,6 +81,34 @@ def test_generate_batch_accepts_a_clean_batch():
     assert teacher.call_count == len(specs)
 
 
+def test_generate_batch_reports_progress_via_on_call():
+    teacher = FakeTeacher(good=True)
+    specs = default_generation_specs(n_per_category=2)
+    calls = []
+
+    generate_batch(teacher, specs, on_call=lambda n, elapsed, ok, err: calls.append((n, ok, err)))
+
+    assert len(calls) == len(specs)
+    assert [n for n, ok, err in calls] == list(range(1, len(specs) + 1))
+    assert all(ok is True and err is None for n, ok, err in calls)
+
+
+def test_generate_batch_on_call_reports_generation_failures_too():
+    # FlakyTeacher raises (a real generation failure), unlike FakeTeacher(good=False)
+    # which returns rubric-failing but successfully-generated content -- on_call's
+    # ok=False specifically means the teacher call itself raised.
+    specs = default_generation_specs(n_per_category=1)
+    teacher = FlakyTeacher(n_failures=len(specs))
+    calls = []
+
+    generate_batch(
+        teacher, specs, max_attempts=1, on_call=lambda n, elapsed, ok, err: calls.append((ok, err))
+    )
+
+    assert len(calls) == len(specs)
+    assert all(ok is False and err is not None for ok, err in calls)
+
+
 def test_generate_batch_rejects_after_max_attempts_without_folding_in():
     teacher = FakeTeacher(good=False)
     specs = default_generation_specs(n_per_category=2)

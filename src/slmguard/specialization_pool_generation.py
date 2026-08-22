@@ -35,6 +35,7 @@ latent:
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -69,6 +70,7 @@ def generate_specialization_pool(
     exclude_prompts: frozenset[str] = frozenset(),
     exclude_alert_ids: frozenset[str] = frozenset(),
     max_attempts: int = 3,
+    on_call: Callable[[int, float, bool, str | None], None] | None = None,
 ) -> tuple[SpecializationPool, PoolGenerationReport, list[GeneratedExample]]:
     """Generate a class-weighted training pool. `counts` maps action name to
     how many examples to target for that action (the teacher's own decided
@@ -95,7 +97,7 @@ def generate_specialization_pool(
     for action, count in counts.items():
         specs = weighted_generation_specs({action: count})
         total_specs += len(specs)
-        result = generate_batch(teacher, specs, max_attempts=max_attempts)
+        result = generate_batch(teacher, specs, max_attempts=max_attempts, on_call=on_call)
         chunk_accepted[action] = result.accepted
         chunk_attempts[action] = result.attempts
         if result.accepted:
